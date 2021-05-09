@@ -16,7 +16,7 @@ class DBHelper(
                   "txt text);"
         var timesql = "create table if not exists timetable("+
                       "_id integer primary key autoincrement,"+
-                      "txt text);"
+                    "mon text, tue text, wed text, thu text, fri text);"
         db!!.execSQL(apisql)
         db!!.execSQL(timesql)
     }
