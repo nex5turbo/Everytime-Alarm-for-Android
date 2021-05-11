@@ -30,19 +30,19 @@ import java.io.InputStream
 private const val GET_GALLERY_IMG = 200
 
 class ImageFragment(val database: SQLiteDatabase, private val mContext: Context): Fragment() {
-    var resultPath = ""
-    var alarmArray:ArrayList<ArrayList<Int>>? = null
+    private var resultPath = ""
+    private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
-    lateinit var timeImageView: ImageView
-    lateinit var textView: TextView
-    lateinit var matResult: Mat
-    lateinit var matInput: Mat
+    private lateinit var timeImageView: ImageView
+    private lateinit var textView: TextView
+    private lateinit var matResult: Mat
+    private lateinit var matInput: Mat
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val rootView = inflater.inflate(R.layout.fragment_image, container, false) as ViewGroup
         timeImageView = rootView.findViewById(R.id.timeImage) as ImageView
         textView = rootView.findViewById(R.id.textView) as TextView
@@ -155,6 +155,10 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                     .show()
             }
         }
+    }
+
+    private fun setAlarm(mon: Array<String>, tue: Array<String>, wed: Array<String>, thu: Array<String>, fri: Array<String>){
+
     }
 
     private fun sendResult(mon: String, tue: String, wed: String, thu: String, fri: String){

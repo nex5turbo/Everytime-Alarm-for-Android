@@ -15,7 +15,7 @@ class SettingFragment(val database: SQLiteDatabase): Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val rootView = inflater.inflate(R.layout.fragment_setting, container, false) as ViewGroup
         setNowDb(rootView)
         setFragmentResultListener("requestKey") { requestKey, bundle ->
@@ -45,6 +45,7 @@ class SettingFragment(val database: SQLiteDatabase): Fragment() {
             fri =cursor.getString(4)
             resultText = mon + tue + wed + thu + fri
         }
+        cursor.close()
         if (resultText == "") {
             (rootView.findViewById(R.id.textView3) as TextView).text = "설정된 알람이 없습니다."
         } else {

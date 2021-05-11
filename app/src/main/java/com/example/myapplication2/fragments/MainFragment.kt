@@ -47,7 +47,7 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
         cursor.close()
 
         if (resultText == "") {
-            resultText = "아직 등록된 시간표가 없어요."
+            resultText = "등록된 시간표가 없어요."
         }
         return resultText
     }
