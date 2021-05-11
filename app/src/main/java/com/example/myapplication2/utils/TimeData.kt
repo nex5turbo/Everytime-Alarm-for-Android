@@ -1,4 +1,4 @@
-package com.example.myapplication2
+package com.example.myapplication2.utils
 
 object TimeData{
     var timeArray = arrayOf(arrayOf(9,0),

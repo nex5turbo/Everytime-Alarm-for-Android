@@ -11,7 +11,119 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="settingFragment"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/monText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="64dp"
+        android:text="월"
+        android:textSize="40sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tueText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="화"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="@+id/monText"
+        app:layout_constraintTop_toBottomOf="@+id/monText" />
+
+    <TextView
+        android:id="@+id/wedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="수"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="@+id/tueText"
+        app:layout_constraintTop_toBottomOf="@+id/tueText" />
+
+    <TextView
+        android:id="@+id/thuText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="목"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="@+id/wedText"
+        app:layout_constraintTop_toBottomOf="@+id/wedText" />
+
+    <TextView
+        android:id="@+id/friText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="금"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="@+id/thuText"
+        app:layout_constraintTop_toBottomOf="@+id/thuText" />
+
+    <TextView
+        android:id="@+id/monTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:hint="- - : - -"
+        android:text=""
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/monText"
+        app:layout_constraintStart_toEndOf="@+id/monText"
+        app:layout_constraintTop_toTopOf="@+id/monText" />
+
+    <TextView
+        android:id="@+id/tueTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:hint="- - : - -"
+        android:text=""
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tueText"
+        app:layout_constraintStart_toEndOf="@+id/monText"
+        app:layout_constraintTop_toTopOf="@+id/tueText" />
+
+    <TextView
+        android:id="@+id/wedTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:hint="- - : - -"
+        android:text=""
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/wedText"
+        app:layout_constraintStart_toEndOf="@+id/monText"
+        app:layout_constraintTop_toTopOf="@+id/wedText" />
+
+    <TextView
+        android:id="@+id/thuTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:hint="- - : - -"
+        android:text=""
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/thuText"
+        app:layout_constraintStart_toEndOf="@+id/monText"
+        app:layout_constraintTop_toTopOf="@+id/thuText" />
+
+    <TextView
+        android:id="@+id/friTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:hint="- - : - -"
+        android:text=""
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/friText"
+        app:layout_constraintStart_toEndOf="@+id/monText"
+        app:layout_constraintTop_toTopOf="@+id/friText" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

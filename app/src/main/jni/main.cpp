@@ -159,11 +159,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
         now_height = now_height+y_gap;
     }
 
-    vector<int> mondayList;
-    vector<int> tuesdayList;
-    vector<int> wednesdayList;
-    vector<int> thursdayList;
-    vector<int> fridayList;
+    vector<int> dayList;
 
     //월요일
     for(size_t i = 0; i< monday.size();i++){
@@ -177,9 +173,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
             }
         }
         if(mean_sat/(curHSV.size().height * curHSV.size().width) > 60){
-            mondayList.push_back(1);
+            dayList.push_back(1);
         }else{
-            mondayList.push_back(0);
+            dayList.push_back(0);
         }
     }
     //화요일
@@ -194,9 +190,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
             }
         }
         if(mean_sat/(curHSV.size().height * curHSV.size().width) > 60){
-            mondayList.push_back(1);
+            dayList.push_back(1);
         }else{
-            mondayList.push_back(0);
+            dayList.push_back(0);
         }
     }
     //수요일
@@ -211,9 +207,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
             }
         }
         if(mean_sat/(curHSV.size().height * curHSV.size().width) > 60){
-            mondayList.push_back(1);
+            dayList.push_back(1);
         }else{
-            mondayList.push_back(0);
+            dayList.push_back(0);
         }
     }
     //목요일
@@ -228,9 +224,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
             }
         }
         if(mean_sat/(curHSV.size().height * curHSV.size().width) > 60){
-            mondayList.push_back(1);
+            dayList.push_back(1);
         }else{
-            mondayList.push_back(0);
+            dayList.push_back(0);
         }
     }
     //금요일
@@ -245,21 +241,21 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
             }
         }
         if(mean_sat/(curHSV.size().height * curHSV.size().width) > 60){
-            mondayList.push_back(1);
+            dayList.push_back(1);
         }else{
-            mondayList.push_back(0);
+            dayList.push_back(0);
         }
     }
     jintArray result;
-    result = env->NewIntArray(mondayList.size());
+    result = env->NewIntArray(dayList.size());
     if(result == NULL){
         return NULL;
     }
-    jint ji_array[mondayList.size()];
-    for(size_t i = 0; i<mondayList.size();i++){
-        ji_array[i] = mondayList[i];
+    jint ji_array[dayList.size()];
+    for(size_t i = 0; i < dayList.size(); i++){
+        ji_array[i] = dayList[i];
     }
-    env->SetIntArrayRegion(result,0,mondayList.size(), ji_array);
+    env->SetIntArrayRegion(result, 0, dayList.size(), ji_array);
     return result;
 }
 

@@ -3,14 +3,10 @@ package com.example.myapplication2
 import android.database.sqlite.SQLiteDatabase
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication2.databinding.ActivityMainBinding
+import com.example.myapplication2.utils.DBHelper
 import com.google.android.material.tabs.TabLayoutMediator
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 
 class MainActivity : AppCompatActivity() {
@@ -22,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
-    val tabTextList = arrayListOf("Home", "Image", "Setting")
+    private val tabTextList = arrayListOf("Home", "Image", "Setting")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

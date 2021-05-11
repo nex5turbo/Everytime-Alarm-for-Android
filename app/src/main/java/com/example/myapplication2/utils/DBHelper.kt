@@ -1,4 +1,4 @@
-package com.example.myapplication2
+package com.example.myapplication2.utils
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -11,14 +11,14 @@ class DBHelper(
     version: Int
 ): SQLiteOpenHelper(context, name, factory, version) {
     override fun onCreate(db: SQLiteDatabase?) {
-        var apisql = "create table if not exists apitable("+
+        val apisql = "create table if not exists apitable("+
                   "_id integer primary key autoincrement,"+
                   "txt text);"
-        var timesql = "create table if not exists timetable("+
+        val timesql = "create table if not exists timetable("+
                       "_id integer primary key autoincrement,"+
                     "mon text, tue text, wed text, thu text, fri text);"
         db!!.execSQL(apisql)
-        db!!.execSQL(timesql)
+        db.execSQL(timesql)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -26,6 +26,6 @@ class DBHelper(
         sql = "drop table if exists apitable;"
         db!!.execSQL(sql)
         sql = "drop table if exists timetable;"
-        db!!.execSQL(sql)
+        db.execSQL(sql)
     }
 }

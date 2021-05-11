@@ -3,8 +3,10 @@ package com.example.myapplication2
 import android.database.sqlite.SQLiteDatabase
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.myapplication2.fragments.ImageFragment
+import com.example.myapplication2.fragments.MainFragment
+import com.example.myapplication2.fragments.SettingFragment
 
 class ViewPagerAdapter(val fa: FragmentActivity, var database: SQLiteDatabase): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {

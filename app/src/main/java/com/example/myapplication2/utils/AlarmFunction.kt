@@ -1,20 +1,15 @@
-package com.example.myapplication2
+package com.example.myapplication2.utils
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import java.util.*
 import kotlin.collections.ArrayList
 
 class AlarmFunction {
     fun splitArr(array:IntArray):ArrayList<ArrayList<Int>>{
-        var rt = ArrayList<ArrayList<Int>>()
-        var monday = ArrayList<Int>()
-        var tuesday = ArrayList<Int>()
-        var thursday = ArrayList<Int>()
-        var wednesday = ArrayList<Int>()
-        var friday = ArrayList<Int>()
+        val rt = ArrayList<ArrayList<Int>>()
+        val monday = ArrayList<Int>()
+        val tuesday = ArrayList<Int>()
+        val thursday = ArrayList<Int>()
+        val wednesday = ArrayList<Int>()
+        val friday = ArrayList<Int>()
         var count = 0
         if(array.size%2 == 0) {
             while (true) {
@@ -122,7 +117,7 @@ class AlarmFunction {
     }
 
     fun getFirstEachDay(arrList:ArrayList<ArrayList<Int>>):Array<Int>{
-        var rtArray = Array<Int>(5){-1}
+        val rtArray = Array<Int>(5){-1}
         var count = 0
         for(temp in arrList[0]){
             if(temp != 0){
@@ -162,7 +157,6 @@ class AlarmFunction {
                 break
             }
         }
-        count = 0
         return rtArray
     }
 
