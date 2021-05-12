@@ -34,3 +34,35 @@ class MainActivity : AppCompatActivity() {
         }.attach()
     }
 }
+
+//val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+//
+//val intent = Intent(this, Alarm::class.java)  // 1
+//val pendingIntent = PendingIntent.getBroadcast(     // 2
+//        this, Calendar.DAY_OF_WEEK, intent,
+//        PendingIntent.FLAG_UPDATE_CURRENT)
+//val calendar = Calendar.getInstance()
+//calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
+//calendar.set(Calendar.DAY_OF_WEEK,3)
+//calendar.set(Calendar.HOUR_OF_DAY,21)
+//calendar.set(Calendar.MINUTE, 2)
+//calendar.set(Calendar.SECOND,18)
+//binding.button.setOnClickListener{
+//    val toastMessage = if (isTrue) {   // 3
+//        isTrue = false
+//        val triggerTime = (SystemClock.elapsedRealtime()  // 4
+//                + 10 * 1000)
+//        alarmManager.setExact(   // 5
+//                AlarmManager.RTC_WAKEUP,
+//                calendar.timeInMillis,
+//                pendingIntent
+//        )
+//        "Onetime Alarm On"
+//    } else {
+//        isTrue = true
+//        alarmManager.cancel(pendingIntent)    // 6
+//        "Onetime Alarm Off"
+//    }
+//    Log.d("TAG", toastMessage)
+//    Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show()
+//}
