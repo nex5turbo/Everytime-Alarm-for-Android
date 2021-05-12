@@ -1,5 +1,7 @@
 package com.example.myapplication2.fragments
 
+import android.content.Context
+import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,8 +11,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
+import com.example.myapplication2.utils.AlarmFunction
 
-class SettingFragment(val database: SQLiteDatabase): Fragment() {
+class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -28,6 +31,7 @@ class SettingFragment(val database: SQLiteDatabase): Fragment() {
         }
         return rootView
     }
+
     private fun setNowDb(rootView: ViewGroup){
         val sql = "select mon,tue,wed,thu,fri from timeTable;"
         val cursor = database.rawQuery(sql,null)
@@ -72,6 +76,10 @@ class SettingFragment(val database: SQLiteDatabase): Fragment() {
             minute = "0"+minute
         }
         return "${hour[0]} ${hour[1]} : ${minute[0]} ${minute[1]}"
+    }
+
+    private fun setAlarm(mon: String, tue: String, wed: String, thu: String, fri: String){
+        val intent = Intent(mContext, AlarmFunction::class.java)
     }
 
     private fun resultFragment(mon: String, tue: String, wed: String, thu: String, fri: String, rootView: ViewGroup) {

@@ -18,7 +18,7 @@ class ViewPagerAdapter(val fa: FragmentActivity, var database: SQLiteDatabase): 
         when (position) {
             0->frag = MainFragment(database)
             1->frag = ImageFragment(database, fa)
-            2->frag = SettingFragment(database)
+            2->frag = SettingFragment(database, fa)
         }
         return frag!!
     }

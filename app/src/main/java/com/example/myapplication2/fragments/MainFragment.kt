@@ -31,7 +31,7 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
         if (tomWeek == 1 || tomWeek == 7){
             (rootView.findViewById(R.id.mainText) as TextView).text = "내일은 주말이에요!! ${getDayOfWeek()} ${Calendar.HOUR+Calendar.MINUTE}"
         } else {
-            var resultText = getDbTime(tomWeek-2)
+            val resultText = getDbTime(tomWeek-2)
             (rootView.findViewById(R.id.mainText) as TextView).text = resultText
         }
     }
@@ -41,7 +41,7 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
         val cursor = database.rawQuery(sql,null)
         var resultText = ""
         while (cursor.moveToNext()){
-            var time =cursor.getString(tomWeek)
+            val time =cursor.getString(tomWeek)
             resultText = transferTime(time)
         }
         cursor.close()
@@ -64,9 +64,9 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
         if (time == "no") {
             return "내일은 공강이에요!"
         }
-        var alarmTime = time.split(",")
-        var hour = alarmTime[0]
-        var minute = alarmTime[1]
+        val alarmTime = time.split(",")
+        val hour = alarmTime[0]
+        val minute = alarmTime[1]
         return "내일의 첫 수업은 "+hour+":"+minute+"에요!"
     }
 }
