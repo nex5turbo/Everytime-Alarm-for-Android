@@ -16,7 +16,9 @@ class DBHelper(
                   "txt text);"
         val timesql = "create table if not exists timetable("+
                       "_id integer primary key autoincrement,"+
-                    "mon text, tue text, wed text, thu text, fri text);"
+                    "mon text, tue text, wed text, thu text, fri text, "+
+                    "ismon Integer, istue integer, iswed integer, isthu integer, isfri integer, "+
+                    "pretime Integer);"
         db!!.execSQL(apisql)
         db.execSQL(timesql)
     }
@@ -27,5 +29,9 @@ class DBHelper(
         db!!.execSQL(sql)
         sql = "drop table if exists timetable;"
         db.execSQL(sql)
+    }
+
+    fun kkk() {
+        print(false)
     }
 }

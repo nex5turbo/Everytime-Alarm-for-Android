@@ -1,7 +1,6 @@
 package com.example.myapplication2.fragments
 
 import android.content.Context
-import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,13 +20,14 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_setting, container, false) as ViewGroup
         setNowDb(rootView)
-        setFragmentResultListener("requestKey") { requestKey, bundle ->
+        setFragmentResultListener("requestKey") { _, bundle ->
             val mon = bundle.getString("mon")!!
             val tue = bundle.getString("tue")!!
             val wed = bundle.getString("wed")!!
             val thu = bundle.getString("thu")!!
             val fri = bundle.getString("fri")!!
             resultFragment(mon, tue, wed, thu, fri, rootView)
+            AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, 0) //성공여부에 따라 다이얼로그 띄우기
         }
         return rootView
     }
@@ -54,11 +54,7 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
             (rootView.findViewById(R.id.textView3) as TextView).text = "설정된 알람이 없습니다."
         } else {
             (rootView.findViewById(R.id.textView3) as TextView).text = resultText
-            (rootView.findViewById(R.id.monTimeText) as TextView).text = timeToString(mon)
-            (rootView.findViewById(R.id.tueTimeText) as TextView).text = timeToString(tue)
-            (rootView.findViewById(R.id.wedTimeText) as TextView).text = timeToString(wed)
-            (rootView.findViewById(R.id.thuTimeText) as TextView).text = timeToString(thu)
-            (rootView.findViewById(R.id.friTimeText) as TextView).text = timeToString(fri)
+            resultFragment(mon, tue, wed, thu, fri, rootView)
         }
     }
 
@@ -76,10 +72,6 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
             minute = "0"+minute
         }
         return "${hour[0]} ${hour[1]} : ${minute[0]} ${minute[1]}"
-    }
-
-    private fun setAlarm(mon: String, tue: String, wed: String, thu: String, fri: String){
-        val intent = Intent(mContext, AlarmFunction::class.java)
     }
 
     private fun resultFragment(mon: String, tue: String, wed: String, thu: String, fri: String, rootView: ViewGroup) {

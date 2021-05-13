@@ -1,7 +1,7 @@
 package com.example.myapplication2.utils
 
 object TimeData{
-    var timeArray = arrayOf(arrayOf(9,0),
+    val timeArray = arrayOf(arrayOf(9,0),
         arrayOf(9,30),
         arrayOf(10,0),
         arrayOf(10,30),

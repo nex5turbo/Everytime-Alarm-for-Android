@@ -68,7 +68,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
             timeImageView.setImageBitmap(myBit)
 
             if(alarmArray != null){
-                val eachDay = AlarmFunction().getFirstEachDay(alarmArray!!)
+                val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
                 var monTime = ""
                 var tueTime = ""
                 var wedTime = ""
@@ -83,7 +83,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 if (eachDay[0] == -1){
                     monTime = "월공강\n"
                     dbMon = "no"
-                }else{
+                } else {
                     val hour = timeArray[eachDay[0]][0].toString()
                     val minute = if(timeArray[eachDay[0]][1] == 0){"00"}else{"30"}
                     monTime = "월요일 = "+(eachDay[0]+1).toString()+"교시 "+hour+":"+minute+"\n"
@@ -92,7 +92,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 if (eachDay[1] == -1){
                     tueTime = "화공강\n"
                     dbTue = "no"
-                }else{
+                } else {
                     val hour = timeArray[eachDay[1]][0].toString()
                     val minute = if(timeArray[eachDay[1]][1] == 0){"00"}else{"30"}
                     tueTime = "화요일 = "+(eachDay[1]+1).toString()+"교시 "+hour+":"+minute+"\n"
@@ -101,7 +101,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 if (eachDay[2] == -1){
                     wedTime = "수공강\n"
                     dbWed = "no"
-                }else{
+                } else {
                     val hour = timeArray[eachDay[2]][0].toString()
                     val minute = if(timeArray[eachDay[2]][1] == 0){"00"}else{"30"}
                     wedTime = "수요일 = "+(eachDay[2]+1).toString()+"교시 "+hour+":"+minute+"\n"
@@ -110,7 +110,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 if (eachDay[3] == -1){
                     thuTime = "목공강\n"
                     dbThu = "no"
-                }else{
+                } else {
                     val hour = timeArray[eachDay[3]][0].toString()
                     val minute = if(timeArray[eachDay[3]][1] == 0){"00"}else{"30"}
                     thuTime = "목요일 = "+(eachDay[3]+1).toString()+"교시 "+hour+":"+minute+"\n"
@@ -119,7 +119,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 if (eachDay[4] == -1){
                     friTime = "금공강"
                     dbFri = "no"
-                }else{
+                } else {
                     val hour = timeArray[eachDay[4]][0].toString()
                     val minute = if(timeArray[eachDay[4]][1] == 0){"00"}else{"30"}
                     friTime = "금요일 = "+eachDay[4].toString()+"교시 "+hour+":"+minute
@@ -141,7 +141,7 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                     }
                     .setCancelable(false)
                     .show()
-            }else{
+            } else {
                 val dialog = AlertDialog.Builder(mContext, android.R.style.Theme_DeviceDefault_Light_Dialog)
                 dialog.setMessage("시간표 사진이 아닌 것 같아요!")
                     .setTitle("에러!")
@@ -155,10 +155,6 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                     .show()
             }
         }
-    }
-
-    private fun setAlarm(mon: Array<String>, tue: Array<String>, wed: Array<String>, thu: Array<String>, fri: Array<String>){
-
     }
 
     private fun sendResult(mon: String, tue: String, wed: String, thu: String, fri: String){
@@ -180,7 +176,8 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
     private fun dbInsert(mon: String, tue: String, wed: String, thu: String, fri: String) {
         var sql = "delete from timeTable"
         database.execSQL(sql)
-        sql = "insert into timeTable (mon, tue, wed, thu, fri) values ('$mon','$tue','$wed','$thu','$fri')"
+        sql = "insert into timeTable (mon, tue, wed, thu, fri, ismon, istue, iswed, isthu, isfri, pretime) "+
+                "values ('$mon','$tue','$wed','$thu','$fri', 1, 1, 1, 1, 1, 30)"
         database.execSQL(sql)
     }
 
@@ -192,10 +189,10 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
         matResult = Mat(matInput.rows(), matInput.cols(), matInput.type())
         val resultArray = OpenCvModule().ConvertRGBtoGray(matInput.nativeObjAddr, matResult.nativeObjAddr)
 
-        if (resultArray == null){
+        if (resultArray == null) {
             textView.text = "시간표 사진이 아닌듯?"
             alarmArray = null
-        }else {
+        } else {
             var rt = ""
             var count = 1
             for (temp: Int in resultArray) {
@@ -209,13 +206,13 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
                 count++
             }
             textView.text = rt
-            alarmArray = AlarmFunction().splitArr(resultArray)
+            alarmArray = AlarmFunction.splitArr(resultArray)
         }
 
         return matResult
     }
     companion object {
-        init{
+        init {
             System.loadLibrary("opencv_java4");
             System.loadLibrary("native-lib");
         }
