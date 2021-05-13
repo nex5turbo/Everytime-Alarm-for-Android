@@ -46,7 +46,6 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_image, container, false) as ViewGroup
         timeImageView = rootView.findViewById(R.id.timeImage) as ImageView
-        textView = rootView.findViewById(R.id.textView) as TextView
 
         timeImageView.setOnClickListener{
             openGallery()

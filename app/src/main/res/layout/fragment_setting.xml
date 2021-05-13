@@ -6,6 +6,176 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.8">
+
+        <TextView
+            android:id="@+id/monTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="- - : - -"
+            android:text=""
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="@+id/monText"
+            app:layout_constraintEnd_toStartOf="@+id/monButton"
+            app:layout_constraintStart_toEndOf="@+id/monText"
+            app:layout_constraintTop_toTopOf="@+id/monText" />
+
+        <TextView
+            android:id="@+id/thuTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="- - : - -"
+            android:text=""
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="@+id/thuText"
+            app:layout_constraintEnd_toStartOf="@+id/thuButton"
+            app:layout_constraintStart_toEndOf="@+id/thuText"
+            app:layout_constraintTop_toTopOf="@+id/thuText" />
+
+        <TextView
+            android:id="@+id/thuText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="목"
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/wedText" />
+
+        <TextView
+            android:id="@+id/friTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="- - : - -"
+            android:text=""
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="@+id/friText"
+            app:layout_constraintEnd_toStartOf="@+id/friButton"
+            app:layout_constraintStart_toEndOf="@+id/friText"
+            app:layout_constraintTop_toTopOf="@+id/friText" />
+
+        <Button
+            android:id="@+id/wedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/wedTimeText" />
+
+        <Button
+            android:id="@+id/friButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/friTimeText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/friTimeText" />
+
+        <TextView
+            android:id="@+id/wedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="수"
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tueText" />
+
+        <TextView
+            android:id="@+id/monText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif"
+            android:text="월"
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tueTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="- - : - -"
+            android:text=""
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tueText"
+            app:layout_constraintEnd_toStartOf="@+id/tueButton"
+            app:layout_constraintStart_toEndOf="@+id/tueText"
+            app:layout_constraintTop_toTopOf="@+id/tueText" />
+
+        <Button
+            android:id="@+id/thuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/thuTimeText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/thuTimeText" />
+
+        <Button
+            android:id="@+id/tueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/tueTimeText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tueTimeText" />
+
+        <TextView
+            android:id="@+id/friText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="금"
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/thuText" />
+
+        <TextView
+            android:id="@+id/tueText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="화"
+            android:textSize="40sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/monText" />
+
+        <TextView
+            android:id="@+id/wedTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:hint="- - : - -"
+            android:text=""
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="@+id/wedText"
+            app:layout_constraintEnd_toStartOf="@+id/wedButton"
+            app:layout_constraintStart_toEndOf="@+id/wedText"
+            app:layout_constraintTop_toTopOf="@+id/wedText" />
+
+        <Button
+            android:id="@+id/monButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/monTimeText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/monTimeText" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -14,158 +184,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/monText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="64dp"
-        android:fontFamily="sans-serif"
-        android:text="월"
-        android:textSize="40sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tueText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="화"
-        android:textSize="40sp"
-        app:layout_constraintStart_toStartOf="@+id/monText"
-        app:layout_constraintTop_toBottomOf="@+id/monText" />
-
-    <TextView
-        android:id="@+id/wedText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="수"
-        android:textSize="40sp"
-        app:layout_constraintStart_toStartOf="@+id/tueText"
-        app:layout_constraintTop_toBottomOf="@+id/tueText" />
-
-    <TextView
-        android:id="@+id/thuText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="목"
-        android:textSize="40sp"
-        app:layout_constraintStart_toStartOf="@+id/wedText"
-        app:layout_constraintTop_toBottomOf="@+id/wedText" />
-
-    <TextView
-        android:id="@+id/friText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="금"
-        android:textSize="40sp"
-        app:layout_constraintStart_toStartOf="@+id/thuText"
-        app:layout_constraintTop_toBottomOf="@+id/thuText" />
-
-    <TextView
-        android:id="@+id/monTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:hint="- - : - -"
-        android:text=""
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/monText"
-        app:layout_constraintStart_toEndOf="@+id/monText"
-        app:layout_constraintTop_toTopOf="@+id/monText" />
-
-    <TextView
-        android:id="@+id/tueTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:hint="- - : - -"
-        android:text=""
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/tueText"
-        app:layout_constraintStart_toEndOf="@+id/monText"
-        app:layout_constraintTop_toTopOf="@+id/tueText" />
-
-    <TextView
-        android:id="@+id/wedTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:hint="- - : - -"
-        android:text=""
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/wedText"
-        app:layout_constraintStart_toEndOf="@+id/monText"
-        app:layout_constraintTop_toTopOf="@+id/wedText" />
-
-    <TextView
-        android:id="@+id/thuTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:hint="- - : - -"
-        android:text=""
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/thuText"
-        app:layout_constraintStart_toEndOf="@+id/monText"
-        app:layout_constraintTop_toTopOf="@+id/thuText" />
-
-    <TextView
-        android:id="@+id/friTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:hint="- - : - -"
-        android:text=""
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="@+id/friText"
-        app:layout_constraintStart_toEndOf="@+id/monText"
-        app:layout_constraintTop_toTopOf="@+id/friText" />
-
-    <Button
-        android:id="@+id/monButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/monTimeText"
-        app:layout_constraintTop_toTopOf="@+id/monTimeText" />
-
-    <Button
-        android:id="@+id/tueButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/monButton"
-        app:layout_constraintTop_toTopOf="@+id/tueTimeText" />
-
-    <Button
-        android:id="@+id/wedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/tueButton"
-        app:layout_constraintTop_toTopOf="@+id/wedTimeText" />
-
-    <Button
-        android:id="@+id/thuButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/wedButton"
-        app:layout_constraintTop_toTopOf="@+id/thuTimeText" />
-
-    <Button
-        android:id="@+id/friButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/thuButton"
-        app:layout_constraintTop_toTopOf="@+id/friTimeText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
