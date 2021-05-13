@@ -9,9 +9,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
+import com.example.myapplication2.utils.DBFunction
 import java.util.*
 
-class MainFragment(private val database: SQLiteDatabase):Fragment() {
+class MainFragment(private val database: SQLiteDatabase, private val db: DBFunction):Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,29 +27,22 @@ class MainFragment(private val database: SQLiteDatabase):Fragment() {
         return rootView
     }
 
-    private fun setText(tomWeek: Int, rootView: ViewGroup){
-        if (tomWeek == 1 || tomWeek == 7){
+    private fun setText(day: Int, rootView: ViewGroup){
+        if (day == 1 || day == 7){
             (rootView.findViewById(R.id.mainText) as TextView).text = "내일은 주말이에요!!"
         } else {
-            val resultText = getDbTime(tomWeek-2)
+            val resultText = getDbTime(day)
             (rootView.findViewById(R.id.mainText) as TextView).text = resultText
         }
     }
 
-    private fun getDbTime(tomWeek: Int): String {
-        val sql = "select mon,tue,wed,thu,fri from timetable;"
-        val cursor = database.rawQuery(sql,null)
-        var resultText = ""
-        while (cursor.moveToNext()){
-            val time =cursor.getString(tomWeek)
-            resultText = transferTime(time)
+    private fun getDbTime(day: Int): String {
+        val time = db.getTime(day)
+        if (time == "") {
+            return "등록된 시간표가 없어요."
+        } else {
+            return timeToString(time)
         }
-        cursor.close()
-
-        if (resultText == "") {
-            resultText = "등록된 시간표가 없어요."
-        }
-        return resultText
     }
 
     private fun getDayOfWeek(): Int {
@@ -59,7 +53,7 @@ class MainFragment(private val database: SQLiteDatabase):Fragment() {
         return todayWeek
     }
 
-    private fun transferTime(time: String): String {
+    private fun timeToString(time: String): String {
         if (time == "no") {
             return "내일은 공강이에요!"
         }

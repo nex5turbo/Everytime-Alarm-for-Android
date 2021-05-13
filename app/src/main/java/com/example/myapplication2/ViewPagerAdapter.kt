@@ -7,8 +7,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.myapplication2.fragments.ImageFragment
 import com.example.myapplication2.fragments.MainFragment
 import com.example.myapplication2.fragments.SettingFragment
+import com.example.myapplication2.utils.DBFunction
 
-class ViewPagerAdapter(val fa: FragmentActivity, var database: SQLiteDatabase): FragmentStateAdapter(fa) {
+class ViewPagerAdapter(private val fa: FragmentActivity, private val database: SQLiteDatabase, private val db: DBFunction): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {
         return 3
     }
@@ -16,9 +17,9 @@ class ViewPagerAdapter(val fa: FragmentActivity, var database: SQLiteDatabase): 
     override fun createFragment(position: Int): Fragment {
         var frag: Fragment? = null
         when (position) {
-            0->frag = MainFragment(database)
-            1->frag = ImageFragment(database, fa)
-            2->frag = SettingFragment(database, fa)
+            0->frag = MainFragment(database, db)
+            1->frag = ImageFragment(database, fa, db)
+            2->frag = SettingFragment(database, fa, db)
         }
         return frag!!
     }

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication2.databinding.ActivityMainBinding
+import com.example.myapplication2.utils.DBFunction
 import com.example.myapplication2.utils.DBHelper
 import com.google.android.material.tabs.TabLayoutMediator
 import retrofit2.Retrofit
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var dbHelper: DBHelper
     lateinit var database: SQLiteDatabase
+    lateinit var db: DBFunction
 
     lateinit var binding: ActivityMainBinding
 
@@ -25,9 +27,9 @@ class MainActivity : AppCompatActivity() {
 
         dbHelper = DBHelper(this, "mydb.db", null, 1)
         database = dbHelper.writableDatabase
-
+        db = DBFunction(database)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.viewPager.adapter = ViewPagerAdapter(this, database)
+        binding.viewPager.adapter = ViewPagerAdapter(this, database, db)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {
             tab, position ->
             tab.text = tabTextList[position]

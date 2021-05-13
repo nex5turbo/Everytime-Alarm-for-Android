@@ -21,6 +21,7 @@ import androidx.fragment.app.setFragmentResult
 import com.example.myapplication2.*
 import com.example.myapplication2.utils.AlarmFunction
 import com.example.myapplication2.OpenCvModule
+import com.example.myapplication2.utils.DBFunction
 import com.example.myapplication2.utils.RealPath
 import com.example.myapplication2.utils.TimeData
 import org.opencv.android.Utils
@@ -29,7 +30,7 @@ import java.io.InputStream
 
 private const val GET_GALLERY_IMG = 200
 
-class ImageFragment(private val database: SQLiteDatabase, private val mContext: Context): Fragment() {
+class ImageFragment(private val database: SQLiteDatabase, private val mContext: Context, private val db: DBFunction): Fragment() {
     private var resultPath = ""
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray

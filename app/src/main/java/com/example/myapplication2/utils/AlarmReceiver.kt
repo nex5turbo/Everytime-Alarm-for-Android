@@ -32,7 +32,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         createNotificationChannel()
         deliverNotification(context)
-        createNextAlarm(context)
+//        createNextAlarm(context)
     }
 
     fun createNextAlarm(context:Context){
@@ -42,18 +42,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getBroadcast(     // 2
                 context, Calendar.DAY_OF_WEEK, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT)
-        alarmManager.cancel(pendingIntent)
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
-        calendar.set(Calendar.DAY_OF_WEEK,3)
-        calendar.set(Calendar.HOUR_OF_DAY,21)
-        calendar.set(Calendar.MINUTE,calendar.get(Calendar.MINUTE)+1)
-        calendar.set(Calendar.SECOND,18)
-        alarmManager.setExact(   // 5
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-        )
     }
 
     private fun deliverNotification(context: Context) {
