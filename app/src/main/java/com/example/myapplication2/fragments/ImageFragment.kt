@@ -29,7 +29,7 @@ import java.io.InputStream
 
 private const val GET_GALLERY_IMG = 200
 
-class ImageFragment(val database: SQLiteDatabase, private val mContext: Context): Fragment() {
+class ImageFragment(private val database: SQLiteDatabase, private val mContext: Context): Fragment() {
     private var resultPath = ""
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
@@ -46,9 +46,11 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
         val rootView = inflater.inflate(R.layout.fragment_image, container, false) as ViewGroup
         timeImageView = rootView.findViewById(R.id.timeImage) as ImageView
         textView = rootView.findViewById(R.id.textView) as TextView
+
         timeImageView.setOnClickListener{
             openGallery()
         }
+
         return rootView
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -59,112 +61,32 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
             val realPath = RealPath()
             val uri = data.data
             resultPath = realPath.getRealPath(mContext, uri!!)!!
-            timeImageView.setImageURI(uri)
             val myBit: Bitmap = BitmapFactory.decodeStream(isi)
-            timeImageView.setImageBitmap(myBit)
             val k = cvTest(myBit)
             Utils.bitmapToMat(myBit, k)
             Utils.matToBitmap(k, myBit)
             timeImageView.setImageBitmap(myBit)
 
             if(alarmArray != null){
-                val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
-                var monTime = ""
-                var tueTime = ""
-                var wedTime = ""
-                var thuTime = ""
-                var friTime = ""
-                var dbMon = ""
-                var dbTue = ""
-                var dbWed = ""
-                var dbThu = ""
-                var dbFri = ""
-
-                if (eachDay[0] == -1){
-                    monTime = "월공강\n"
-                    dbMon = "no"
-                } else {
-                    val hour = timeArray[eachDay[0]][0].toString()
-                    val minute = if(timeArray[eachDay[0]][1] == 0){"00"}else{"30"}
-                    monTime = "월요일 = "+(eachDay[0]+1).toString()+"교시 "+hour+":"+minute+"\n"
-                    dbMon = "$hour,$minute"
-                }
-                if (eachDay[1] == -1){
-                    tueTime = "화공강\n"
-                    dbTue = "no"
-                } else {
-                    val hour = timeArray[eachDay[1]][0].toString()
-                    val minute = if(timeArray[eachDay[1]][1] == 0){"00"}else{"30"}
-                    tueTime = "화요일 = "+(eachDay[1]+1).toString()+"교시 "+hour+":"+minute+"\n"
-                    dbTue = "$hour,$minute"
-                }
-                if (eachDay[2] == -1){
-                    wedTime = "수공강\n"
-                    dbWed = "no"
-                } else {
-                    val hour = timeArray[eachDay[2]][0].toString()
-                    val minute = if(timeArray[eachDay[2]][1] == 0){"00"}else{"30"}
-                    wedTime = "수요일 = "+(eachDay[2]+1).toString()+"교시 "+hour+":"+minute+"\n"
-                    dbWed = "$hour,$minute"
-                }
-                if (eachDay[3] == -1){
-                    thuTime = "목공강\n"
-                    dbThu = "no"
-                } else {
-                    val hour = timeArray[eachDay[3]][0].toString()
-                    val minute = if(timeArray[eachDay[3]][1] == 0){"00"}else{"30"}
-                    thuTime = "목요일 = "+(eachDay[3]+1).toString()+"교시 "+hour+":"+minute+"\n"
-                    dbThu = "$hour,$minute"
-                }
-                if (eachDay[4] == -1){
-                    friTime = "금공강"
-                    dbFri = "no"
-                } else {
-                    val hour = timeArray[eachDay[4]][0].toString()
-                    val minute = if(timeArray[eachDay[4]][1] == 0){"00"}else{"30"}
-                    friTime = "금요일 = "+eachDay[4].toString()+"교시 "+hour+":"+minute
-                    dbFri = "$hour,$minute"
-                }
-                Log.d("###", monTime + tueTime + wedTime + thuTime + friTime)
-
-                val dialog = AlertDialog.Builder(mContext, android.R.style.Theme_DeviceDefault_Light_Dialog)
-                dialog.setMessage(monTime + tueTime + wedTime + thuTime + friTime)
-                    .setTitle("시간표 분석 완료!")
-                    .setNegativeButton("설정하기") { _, _ ->
-                        Toast.makeText(mContext, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
-                        sendResult(dbMon, dbTue, dbWed, dbThu, dbFri)
-                        dbInsert(dbMon, dbTue, dbWed, dbThu, dbFri)
-                    }
-                    .setPositiveButton("다시하기") { _, _ ->
-                        openGallery()
-                        Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
-                    }
-                    .setCancelable(false)
-                    .show()
+                val timeStringArray = arrayToTimeStringArray()
+                val dbStringArray = arrayToDbStringArray()
+                setDialog(timeStringArray, dbStringArray, false)
             } else {
-                val dialog = AlertDialog.Builder(mContext, android.R.style.Theme_DeviceDefault_Light_Dialog)
-                dialog.setMessage("시간표 사진이 아닌 것 같아요!")
-                    .setTitle("에러!")
-                    .setPositiveButton("다시 하기"){ _, _ ->
-                        openGallery()
-                        Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
-                    }.setNegativeButton("취소") {_,_ ->
-                        Toast.makeText(mContext, "취소", Toast.LENGTH_SHORT).show()
-                    }
-                    .setCancelable(false)
-                    .show()
+                val emptyArray: Array<String> = arrayOf()
+                setDialog(emptyArray, emptyArray,true)
             }
         }
     }
 
-    private fun sendResult(mon: String, tue: String, wed: String, thu: String, fri: String){
+    private fun sendResult(mon: String, tue: String, wed: String, thu: String, fri: String, pre: Int){
         //send time string to setting fragment
         setFragmentResult("requestKey", bundleOf(
             "mon" to mon,
             "tue" to tue,
             "wed" to wed,
             "thu" to thu,
-            "fri" to fri))
+            "fri" to fri,
+            "pre" to pre))
     }
 
     private fun openGallery(){
@@ -181,36 +103,112 @@ class ImageFragment(val database: SQLiteDatabase, private val mContext: Context)
         database.execSQL(sql)
     }
 
-    private fun cvTest(myBit: Bitmap): Mat? {
+    private fun cvTest(myBit: Bitmap): Mat {
         matInput = Mat()
         matResult = Mat()
         Utils.bitmapToMat(myBit, matInput)
+
         matResult.release()
         matResult = Mat(matInput.rows(), matInput.cols(), matInput.type())
         val resultArray = OpenCvModule().ConvertRGBtoGray(matInput.nativeObjAddr, matResult.nativeObjAddr)
 
-        if (resultArray == null) {
-            textView.text = "시간표 사진이 아닌듯?"
-            alarmArray = null
-        } else {
-            var rt = ""
-            var count = 1
-            for (temp: Int in resultArray) {
-                rt += temp.toString()
-                rt += " "
-                if (count == resultArray.size / 5) {
-                    rt += "\n"
-                    count = 1
-                    continue
-                }
-                count++
-            }
-            textView.text = rt
-            alarmArray = AlarmFunction.splitArr(resultArray)
-        }
+        alarmArray = AlarmFunction.splitArr(resultArray)
 
         return matResult
     }
+
+    private fun arrayToTimeStringArray(): Array<String>{
+        if (alarmArray == null) {
+            return arrayOf()
+        } else {
+            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
+            val dayStringArray = TimeData.dayStringArray
+            val timeStringArray = Array<String>(5){""}
+
+            for (i in 0..4) {
+                if (eachDay[i] == -1) {
+                    timeStringArray[i] = dayStringArray[i][0].toString()+"공강"
+                } else {
+                    val classTime = eachDay[i]
+                    val hour = timeArray[classTime][0].toString()
+                    val minute = if(timeArray[classTime][1] == 0){"00"}else{"30"}
+                    timeStringArray[i] =  formatTimeString(dayStringArray[i], classTime.toString(), hour, minute)
+                }
+            }
+            return timeStringArray
+        }
+    }
+    private fun arrayToDbStringArray(): Array<String>{
+        if (alarmArray == null) {
+            return arrayOf()
+        } else {
+            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
+            val timeStringArray = Array<String>(5){""}
+
+            for (i in 0..4) {
+                if (eachDay[i] == -1) {
+                    timeStringArray[i] = "no"
+                } else {
+                    val classTime = eachDay[i]
+                    val hour = timeArray[classTime][0].toString()
+                    val minute = if(timeArray[classTime][1] == 0){"00"}else{"30"}
+                    timeStringArray[i] =  formatDbString(hour, minute)
+                }
+            }
+            return timeStringArray
+        }
+    }
+
+    private fun setDialog(timeStringArray: Array<String>, dbStringArray: Array<String>, isError: Boolean){
+        if (isError) {
+            val dialog = AlertDialog.Builder(mContext, android.R.style.Theme_DeviceDefault_Light_Dialog)
+            dialog.setMessage("시간표 사진이 아닌 것 같아요!")
+                    .setTitle("에러!")
+                    .setPositiveButton("다시 하기"){ _, _ ->
+                        openGallery()
+                        Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
+                    }.setNegativeButton("취소") {_,_ ->
+                        Toast.makeText(mContext, "취소", Toast.LENGTH_SHORT).show()
+                    }
+                    .setCancelable(false)
+                    .show()
+        } else {
+            val dialog = AlertDialog.Builder(mContext, android.R.style.Theme_DeviceDefault_Light_Dialog)
+
+            val monTime = timeStringArray[0]
+            val tueTime = timeStringArray[1]
+            val wedTime = timeStringArray[2]
+            val thuTime = timeStringArray[3]
+            val friTime = timeStringArray[4]
+
+            val dbMon = dbStringArray[0]
+            val dbTue = dbStringArray[1]
+            val dbWed = dbStringArray[2]
+            val dbThu = dbStringArray[3]
+            val dbFri = dbStringArray[4]
+
+            dialog.setMessage("$monTime \n$tueTime \n$wedTime \n$thuTime \n$friTime")
+                    .setTitle("시간표 분석 완료!")
+                    .setNegativeButton("설정하기") { _, _ ->
+                        Toast.makeText(mContext, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
+                        dbInsert(dbMon, dbTue, dbWed, dbThu, dbFri)
+                        sendResult(dbMon, dbTue, dbWed, dbThu, dbFri, 30)
+                    }
+                    .setPositiveButton("다시하기") { _, _ ->
+                        openGallery()
+                        Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
+                    }
+                    .setCancelable(false)
+                    .show()
+        }
+    }
+
+    private fun formatTimeString(day: String, classTime: String, hour: String, minute: String): String =
+            "${day} = ${classTime}교시 ${hour}:${minute}"
+
+    private fun formatDbString(hour: String, minute: String): String =
+            "${hour},${minute}"
+
     companion object {
         init {
             System.loadLibrary("opencv_java4");

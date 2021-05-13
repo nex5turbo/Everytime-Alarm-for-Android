@@ -19,7 +19,7 @@
         android:id="@+id/monText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
+        android:layout_marginStart="64dp"
         android:layout_marginTop="64dp"
         android:fontFamily="sans-serif"
         android:text="월"
@@ -126,5 +126,46 @@
         app:layout_constraintBottom_toBottomOf="@+id/friText"
         app:layout_constraintStart_toEndOf="@+id/monText"
         app:layout_constraintTop_toTopOf="@+id/friText" />
+
+    <Button
+        android:id="@+id/monButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Button"
+        app:layout_constraintStart_toEndOf="@+id/monTimeText"
+        app:layout_constraintTop_toTopOf="@+id/monTimeText" />
+
+    <Button
+        android:id="@+id/tueButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintStart_toStartOf="@+id/monButton"
+        app:layout_constraintTop_toTopOf="@+id/tueTimeText" />
+
+    <Button
+        android:id="@+id/wedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintStart_toStartOf="@+id/tueButton"
+        app:layout_constraintTop_toTopOf="@+id/wedTimeText" />
+
+    <Button
+        android:id="@+id/thuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintStart_toStartOf="@+id/wedButton"
+        app:layout_constraintTop_toTopOf="@+id/thuTimeText" />
+
+    <Button
+        android:id="@+id/friButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintStart_toStartOf="@+id/thuButton"
+        app:layout_constraintTop_toTopOf="@+id/friTimeText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

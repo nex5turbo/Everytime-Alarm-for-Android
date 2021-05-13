@@ -9,15 +9,14 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
-import java.time.DayOfWeek
 import java.util.*
 
-class MainFragment(val database: SQLiteDatabase):Fragment() {
+class MainFragment(private val database: SQLiteDatabase):Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val rootView = inflater.inflate(R.layout.fragment_main, container, false) as ViewGroup
         val tomWeek = getDayOfWeek()
         setText(tomWeek, rootView)
@@ -29,7 +28,7 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
 
     private fun setText(tomWeek: Int, rootView: ViewGroup){
         if (tomWeek == 1 || tomWeek == 7){
-            (rootView.findViewById(R.id.mainText) as TextView).text = "내일은 주말이에요!! ${getDayOfWeek()} ${Calendar.HOUR+Calendar.MINUTE}"
+            (rootView.findViewById(R.id.mainText) as TextView).text = "내일은 주말이에요!!"
         } else {
             val resultText = getDbTime(tomWeek-2)
             (rootView.findViewById(R.id.mainText) as TextView).text = resultText
@@ -67,6 +66,6 @@ class MainFragment(val database: SQLiteDatabase):Fragment() {
         val alarmTime = time.split(",")
         val hour = alarmTime[0]
         val minute = alarmTime[1]
-        return "내일의 첫 수업은 "+hour+":"+minute+"에요!"
+        return "내일의 첫 수업은 ${hour}:${minute}에요!"
     }
 }

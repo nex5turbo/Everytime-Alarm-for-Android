@@ -24,4 +24,5 @@ object TimeData{
         arrayOf(19,0),
         arrayOf(19,30)
     )
+    val dayStringArray = arrayOf("월요일", "화요일", "수요일", "목요일", "금요일")
 }

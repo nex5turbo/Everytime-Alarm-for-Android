@@ -3,9 +3,11 @@ package com.example.myapplication2.fragments
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -27,7 +29,7 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
             val thu = bundle.getString("thu")!!
             val fri = bundle.getString("fri")!!
             resultFragment(mon, tue, wed, thu, fri, rootView)
-            AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, 0) //성공여부에 따라 다이얼로그 띄우기
+            Log.d("###", AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, 0).toString()) //성공여부에 따라 다이얼로그 띄우기
         }
         return rootView
     }
@@ -35,7 +37,6 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
     private fun setNowDb(rootView: ViewGroup){
         val sql = "select mon,tue,wed,thu,fri from timeTable;"
         val cursor = database.rawQuery(sql,null)
-        var resultText = ""
         var mon = ""
         var tue = ""
         var wed = ""
@@ -47,15 +48,9 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
             wed =cursor.getString(2)
             thu =cursor.getString(3)
             fri =cursor.getString(4)
-            resultText = mon + tue + wed + thu + fri
         }
         cursor.close()
-        if (resultText == "") {
-            (rootView.findViewById(R.id.textView3) as TextView).text = "설정된 알람이 없습니다."
-        } else {
-            (rootView.findViewById(R.id.textView3) as TextView).text = resultText
-            resultFragment(mon, tue, wed, thu, fri, rootView)
-        }
+        resultFragment(mon, tue, wed, thu, fri, rootView)
     }
 
     private fun timeToString(time: String): String {
@@ -80,5 +75,11 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context): Frag
         (rootView.findViewById(R.id.wedTimeText) as TextView).text = timeToString(wed)
         (rootView.findViewById(R.id.thuTimeText) as TextView).text = timeToString(thu)
         (rootView.findViewById(R.id.friTimeText) as TextView).text = timeToString(fri)
+    }
+
+    private fun setListener(button: Button){
+        button.setOnClickListener {
+
+        }
     }
 }
