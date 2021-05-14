@@ -29,8 +29,8 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
     vector<int> x_list, y_list;
     HoughLines(edges, lines, 1, CV_PI/180, 200);
 
-    if(lines.size() < 1){
-        return NULL;
+    if(lines.empty()){
+        return nullptr;
     }
 
     for(size_t j = 0; j < lines.size();j++){
@@ -93,10 +93,9 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
     }
 
     if(tagX_gap > 50 || tagY_gap > 50){
-        return NULL;
+        return nullptr;
     }
 
-    int day = 1;
     vector<Mat> monday;
     vector<Mat> tuesday;
     vector<Mat> wednesday;
@@ -104,7 +103,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
     vector<Mat> friday;
     int now_height = tagY_gap;
 
-    while(1){
+    while(true){
         if(now_height > height){
             break;
         }
@@ -115,7 +114,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
         now_height = now_height+y_gap;
     }
     now_height = tagY_gap;
-    while(1){
+    while(true){
         if(now_height > height){
             break;
         }
@@ -126,7 +125,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
         now_height = now_height+y_gap;
     }
     now_height = tagY_gap;
-    while(1){
+    while(true){
         if(now_height > height){
             break;
         }
@@ -137,7 +136,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
         now_height = now_height+y_gap;
     }
     now_height = tagY_gap;
-    while(1){
+    while(true){
         if(now_height > height){
             break;
         }
@@ -148,7 +147,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
         now_height = now_height+y_gap;
     }
     now_height = tagY_gap;
-    while(1){
+    while(true){
         if(now_height > height){
             break;
         }
@@ -248,8 +247,8 @@ JNIEXPORT jintArray JNICALL Java_com_example_myapplication2_OpenCvModule_Convert
     }
     jintArray result;
     result = env->NewIntArray(dayList.size());
-    if(result == NULL){
-        return NULL;
+    if(result == nullptr){
+        return nullptr;
     }
     jint ji_array[dayList.size()];
     for(size_t i = 0; i < dayList.size(); i++){

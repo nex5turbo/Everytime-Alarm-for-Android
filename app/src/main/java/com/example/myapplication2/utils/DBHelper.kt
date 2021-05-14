@@ -24,14 +24,9 @@ class DBHelper(
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        var sql = ""
-        sql = "drop table if exists apitable;"
+        var sql = "drop table if exists apitable;"
         db!!.execSQL(sql)
         sql = "drop table if exists timetable;"
         db.execSQL(sql)
-    }
-
-    fun kkk() {
-        print(false)
     }
 }

@@ -4,9 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -59,7 +57,6 @@ object AlarmFunction {
             while (true) {
                 if (count == (array.size) - 1) {
                     friday.add(array[count])
-                    count++
                     break
                 }
                 friday.add(array[count])
@@ -109,7 +106,6 @@ object AlarmFunction {
             while (true) {
                 if (count == (array.size) - 2) {
                     friday.add(array[count])
-                    count++
                     break
                 }
                 friday.add(array[count])
@@ -288,9 +284,6 @@ object AlarmFunction {
                         AlarmManager.RTC_WAKEUP,
                         calendar.timeInMillis,
                         pendingIntent)
-                val formatter = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS")
-                val timeString = formatter.format(calendar.timeInMillis)
-                Log.d("###", "$i = $timeString")
             }
         } catch (e: Exception){
             return false

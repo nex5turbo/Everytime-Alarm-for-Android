@@ -1,5 +1,6 @@
 package com.example.myapplication2.fragments
 
+import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +11,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
 import com.example.myapplication2.utils.DBFunction
+import com.example.myapplication2.utils.NetworkStatus
 import java.util.*
 
-class MainFragment(private val database: SQLiteDatabase, private val db: DBFunction):Fragment() {
+private const val TYPE_WIFI = 1
+private const val TYPE_MOBILE = 2
+private const val TYPE_NOT_CONNECTED = 3
+
+class MainFragment(private val mContext: Context, private val db: DBFunction):Fragment() {
+    private var networkStatus = TYPE_NOT_CONNECTED
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -21,11 +29,15 @@ class MainFragment(private val database: SQLiteDatabase, private val db: DBFunct
         val rootView = inflater.inflate(R.layout.fragment_main, container, false) as ViewGroup
         val tomWeek = getDayOfWeek()
         setText(tomWeek, rootView)
+        setNetworkStatus()
         setFragmentResultListener("requestKey") { _, _ ->
             setText(tomWeek, rootView)
         }
+
         return rootView
     }
+
+    private fun setNetworkStatus() {networkStatus = NetworkStatus.getConnectivityStatus(mContext)}
 
     private fun setText(day: Int, rootView: ViewGroup){
         if (day == 1 || day == 7){
@@ -40,9 +52,8 @@ class MainFragment(private val database: SQLiteDatabase, private val db: DBFunct
         val time = db.getTime(day)
         if (time == "") {
             return "등록된 시간표가 없어요."
-        } else {
-            return timeToString(time)
         }
+        return timeToString(time)
     }
 
     private fun getDayOfWeek(): Int {

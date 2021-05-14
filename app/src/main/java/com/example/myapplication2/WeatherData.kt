@@ -6,28 +6,28 @@ data class WeatherData(
     @SerializedName("statusCode")
     val statusCode: Int,
     @SerializedName("body")
-    val body: body
+    val body: Body
 )
 
-data class body(
+data class Body(
     @SerializedName("code")
     val code: String,
     @SerializedName("message")
     val message: String,
     @SerializedName("data")
-    val data: myData
+    val data: MyData
 )
 
-data class myData (
+data class MyData (
     @SerializedName("location")
-    val location: location,
+    val location: Location,
     @SerializedName("weather")
-    val weather: weather,
+    val weather: Weather,
     @SerializedName("lottery")
     val lottery: List<Int>
 )
 
-data class location(
+data class Location(
     @SerializedName("lat")
     val lat: Double,
     @SerializedName("lon")
@@ -36,7 +36,7 @@ data class location(
     val city: String
 )
 
-data class weather(
+data class Weather(
     @SerializedName("celcius")
     val celcius: Int,
     @SerializedName("feelCelcius")

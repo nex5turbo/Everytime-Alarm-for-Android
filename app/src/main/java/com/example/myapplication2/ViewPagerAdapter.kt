@@ -11,17 +11,18 @@ import com.example.myapplication2.utils.DBFunction
 
 class ViewPagerAdapter(private val fa: FragmentActivity, private val database: SQLiteDatabase, private val db: DBFunction): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {
-        return 3
+        return 5
     }
 
     override fun createFragment(position: Int): Fragment {
         var frag: Fragment? = null
         when (position) {
-            0->frag = MainFragment(database, db)
+            0->frag = MainFragment(fa, db)
             1->frag = ImageFragment(database, fa, db)
-            2->frag = SettingFragment(database, fa, db)
+            2->frag = SettingFragment(fa, db)
+            3->frag = SettingFragment(fa, db)
+            4->frag = SettingFragment(fa, db)
         }
         return frag!!
     }
-
 }

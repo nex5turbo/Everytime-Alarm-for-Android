@@ -8,12 +8,10 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -34,8 +32,8 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
     private var resultPath = ""
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
+
     private lateinit var timeImageView: ImageView
-    private lateinit var textView: TextView
     private lateinit var matResult: Mat
     private lateinit var matInput: Mat
 
@@ -46,22 +44,21 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_image, container, false) as ViewGroup
         timeImageView = rootView.findViewById(R.id.timeImage) as ImageView
-
         timeImageView.setOnClickListener{
             openGallery()
         }
-
         return rootView
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == GET_GALLERY_IMG && resultCode == Activity.RESULT_OK && data != null && data.data != null){
-            val isi: InputStream? =
+            val inputStream: InputStream? =
                 requireActivity().contentResolver.openInputStream(data.data!!)
             val realPath = RealPath()
             val uri = data.data
             resultPath = realPath.getRealPath(mContext, uri!!)!!
-            val myBit: Bitmap = BitmapFactory.decodeStream(isi)
+            val myBit: Bitmap = BitmapFactory.decodeStream(inputStream)
             val k = cvTest(myBit)
             Utils.bitmapToMat(myBit, k)
             Utils.matToBitmap(k, myBit)
@@ -123,7 +120,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
         } else {
             val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
             val dayStringArray = TimeData.dayStringArray
-            val timeStringArray = Array<String>(5){""}
+            val timeStringArray = Array(5){""}
 
             for (i in 0..4) {
                 if (eachDay[i] == -1) {
@@ -143,7 +140,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
             return arrayOf()
         } else {
             val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
-            val timeStringArray = Array<String>(5){""}
+            val timeStringArray = Array(5){""}
 
             for (i in 0..4) {
                 if (eachDay[i] == -1) {
@@ -204,7 +201,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
     }
 
     private fun formatTimeString(day: String, classTime: String, hour: String, minute: String): String =
-            "${day} = ${classTime}교시 ${hour}:${minute}"
+            "$day = ${classTime}교시 ${hour}:${minute}"
 
     private fun formatDbString(hour: String, minute: String): String =
             "${hour},${minute}"

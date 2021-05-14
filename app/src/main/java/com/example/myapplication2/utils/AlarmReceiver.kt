@@ -1,6 +1,5 @@
 package com.example.myapplication2.utils
 
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,7 +9,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.myapplication2.MainActivity
 import com.example.myapplication2.R
@@ -23,7 +21,7 @@ class AlarmReceiver : BroadcastReceiver() {
         const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     }
 
-    lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "Received intent : $intent")
@@ -32,16 +30,19 @@ class AlarmReceiver : BroadcastReceiver() {
 
         createNotificationChannel()
         deliverNotification(context)
-//        createNextAlarm(context)
+        createNextAlarm(context)
     }
 
-    fun createNextAlarm(context:Context){
-        val alarmManager = context.getSystemService(AppCompatActivity.ALARM_SERVICE) as AlarmManager
+    private fun createNextAlarm(context:Context){
+        val dbHelper = DBHelper(context, "mydb.db", null, 1)
+        val database = dbHelper.writableDatabase
+        val db = DBFunction(database)
 
-        val intent = Intent(context, AlarmReceiver::class.java)  // 1
-        val pendingIntent = PendingIntent.getBroadcast(     // 2
-                context, Calendar.DAY_OF_WEEK, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT)
+        val day = getDay()
+        val time = db.getTime(day)
+        val preTime = db.getPreTime()
+
+        AlarmFunction.setAlarm(day, time, context, preTime)
     }
 
     private fun deliverNotification(context: Context) {
@@ -65,7 +66,7 @@ class AlarmReceiver : BroadcastReceiver() {
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
-    fun createNotificationChannel() {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                     PRIMARY_CHANNEL_ID,
@@ -80,4 +81,6 @@ class AlarmReceiver : BroadcastReceiver() {
                     notificationChannel)
         }
     }
+
+    private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)
 }

@@ -15,7 +15,7 @@ import com.example.myapplication2.R
 import com.example.myapplication2.utils.AlarmFunction
 import com.example.myapplication2.utils.DBFunction
 
-class SettingFragment(val database: SQLiteDatabase, val mContext: Context, val db: DBFunction): Fragment() {
+class SettingFragment(private val mContext: Context, private val db: DBFunction): Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,9 +39,10 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context, val d
             val wed = bundle.getString("wed")!!
             val thu = bundle.getString("thu")!!
             val fri = bundle.getString("fri")!!
+            val preTime = bundle.getInt("pre")
             resultFragment(mon, tue, wed, thu, fri, rootView)
             setButtonText(buttonArray)
-            Log.d("###", AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, 0).toString()) //성공여부에 따라 다이얼로그 띄우기
+            Log.d("###", AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, preTime).toString()) //성공여부에 따라 다이얼로그 띄우기
         }
 
         return rootView
@@ -50,11 +51,11 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context, val d
     private fun setNowDb(rootView: ViewGroup){
         val timeStringArray = db.getAllTime()
 
-        var mon = timeStringArray[0]
-        var tue = timeStringArray[1]
-        var wed = timeStringArray[2]
-        var thu = timeStringArray[3]
-        var fri = timeStringArray[4]
+        val mon = timeStringArray[0]
+        val tue = timeStringArray[1]
+        val wed = timeStringArray[2]
+        val thu = timeStringArray[3]
+        val fri = timeStringArray[4]
 
         resultFragment(mon, tue, wed, thu, fri, rootView)
     }
@@ -67,10 +68,10 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context, val d
         var hour: String = timeSplit[0]
         var minute: String = timeSplit[1]
         if (hour.length == 1) {
-            hour = "0"+hour
+            hour = "0$hour"
         }
         if (minute.length == 1) {
-            minute = "0"+minute
+            minute = "0$minute"
         }
         return "${hour[0]} ${hour[1]} : ${minute[0]} ${minute[1]}"
     }
@@ -84,9 +85,8 @@ class SettingFragment(val database: SQLiteDatabase, val mContext: Context, val d
     }
 
     private fun setListener(buttons: Array<Button>){
-        for (i in 0..4) {
-            val day = i+2
-            val idx = i
+        for (idx in 0..4) {
+            val day = idx+2
             buttons[idx].setOnClickListener {
                 val isDay = db.getIs(day)
                 if (isDay) {
