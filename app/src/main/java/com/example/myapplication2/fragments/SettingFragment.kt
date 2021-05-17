@@ -1,7 +1,6 @@
 package com.example.myapplication2.fragments
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,10 +11,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
-import com.example.myapplication2.utils.AlarmFunction
-import com.example.myapplication2.utils.DBFunction
+import com.example.myapplication2.alarmutils.AlarmFunction
+import com.example.myapplication2.dbutils.DBFunction
 
-class SettingFragment(private val mContext: Context, private val db: DBFunction): Fragment() {
+class SettingFragment(private val mContext: Context, private val database: DBFunction): Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,10 +29,8 @@ class SettingFragment(private val mContext: Context, private val db: DBFunction)
         val friButton = rootView.findViewById(R.id.friButton) as Button
         val buttonArray: Array<Button> = arrayOf(monButton, tueButton, wedButton, thuButton, friButton)
 
-        setButtonText(buttonArray)
-        setListener(buttonArray)
-        setNowDb(rootView)
         setFragmentResultListener("requestKey") { _, bundle ->
+            Log.d("###", "Received request key")
             val mon = bundle.getString("mon")!!
             val tue = bundle.getString("tue")!!
             val wed = bundle.getString("wed")!!
@@ -42,14 +39,16 @@ class SettingFragment(private val mContext: Context, private val db: DBFunction)
             val preTime = bundle.getInt("pre")
             resultFragment(mon, tue, wed, thu, fri, rootView)
             setButtonText(buttonArray)
-            Log.d("###", AlarmFunction.setAlarms(mon, tue, wed, thu, fri, mContext, preTime).toString()) //성공여부에 따라 다이얼로그 띄우기
         }
+        setButtonText(buttonArray)
+        setListener(buttonArray)
+        setNowDb(rootView)
 
         return rootView
     }
 
     private fun setNowDb(rootView: ViewGroup){
-        val timeStringArray = db.getAllTime()
+        val timeStringArray = database.getAllTime()
 
         val mon = timeStringArray[0]
         val tue = timeStringArray[1]
@@ -88,17 +87,15 @@ class SettingFragment(private val mContext: Context, private val db: DBFunction)
         for (idx in 0..4) {
             val day = idx+2
             buttons[idx].setOnClickListener {
-                val isDay = db.getIs(day)
+                val isDay = database.getIs(day)
                 if (isDay) {
-                    val result = db.updateIs(day, false)
-                    Log.d("###","$result")
+                    val result = database.updateIs(day, false)
                     AlarmFunction.cancelAlarm(day, mContext)
                     buttons[idx].text = "Off"
                 } else {
-                    val result = db.updateIs(day, true)
-                    Log.d("###","$result")
-                    val preTime = db.getPreTime()
-                    val time = db.getTime(day)
+                    val result = database.updateIs(day, true)
+                    val preTime = database.getPreTime()
+                    val time = database.getTime(day)
                     AlarmFunction.setAlarm(day, time, mContext, preTime)
                     buttons[idx].text = "On"
                 }
@@ -109,7 +106,7 @@ class SettingFragment(private val mContext: Context, private val db: DBFunction)
     private fun setButtonText(buttons: Array<Button>){
         for (i in 0..4) {
             val day = i+2
-            val isDay = db.getIs(day)
+            val isDay = database.getIs(day)
             buttons[i].text = if (isDay) {"On"} else {"Off"}
         }
     }

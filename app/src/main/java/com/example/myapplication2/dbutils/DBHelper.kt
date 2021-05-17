@@ -1,4 +1,4 @@
-package com.example.myapplication2.utils
+package com.example.myapplication2.dbutils
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -10,7 +10,7 @@ class DBHelper(
     factory: SQLiteDatabase.CursorFactory?,
     version: Int
 ): SQLiteOpenHelper(context, name, factory, version) {
-    override fun onCreate(db: SQLiteDatabase?) {
+    override fun onCreate(db: SQLiteDatabase) {
         val apisql = "create table if not exists apitable("+
                   "_id integer primary key autoincrement,"+
                   "txt text);"
@@ -19,14 +19,20 @@ class DBHelper(
                     "mon text, tue text, wed text, thu text, fri text, "+
                     "ismon Integer, istue integer, iswed integer, isthu integer, isfri integer, "+
                     "pretime Integer);"
-        db!!.execSQL(apisql)
+        val pathsql = "create table if not exists pathtable("+
+                      "_id integer primary key autoincrement,"+
+                      "path text);"
+        db.execSQL(apisql)
         db.execSQL(timesql)
+        db.execSQL(pathsql)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         var sql = "drop table if exists apitable;"
-        db!!.execSQL(sql)
+        db.execSQL(sql)
         sql = "drop table if exists timetable;"
+        db.execSQL(sql)
+        sql = "drop table if exists pathtable;"
         db.execSQL(sql)
     }
 }

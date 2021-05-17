@@ -1,11 +1,12 @@
-package com.example.myapplication2.utils
+package com.example.myapplication2.dbutils
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
+import com.example.myapplication2.utils.TimeData
 
-class DBFunction(val database: SQLiteDatabase) {
-    val dayStringArray = TimeData.dayStringArrayEng
+class DBFunction(private val database: SQLiteDatabase) {
+    private val dayStringArray = TimeData.dayStringArrayEng
+
     fun getTime(day: Int): String{
         val sql = "select ${dayStringArray[day-2]} from timetable"
         val result = database.rawQuery(sql, null)
@@ -80,8 +81,7 @@ class DBFunction(val database: SQLiteDatabase) {
     fun updateIs(day: Int, targetIs: Boolean): Boolean{
         val data = ContentValues()
         val intIs = if (targetIs) {1} else {0}
-        Log.d("###", "is${dayStringArray[day-2]} $intIs")
-        data.put("is${dayStringArray[day-2]}", intIs)
+        data.put("is${this.dayStringArray[day-2]}", intIs)
         val result = database.update("timetable", data, null, null)
         return result != -1
     }
@@ -96,18 +96,60 @@ class DBFunction(val database: SQLiteDatabase) {
     fun updateAllIs(targetIs: Boolean): Boolean{
         val data = ContentValues()
         val intIs = if (targetIs) {1} else {0}
-        data.put("is${dayStringArray[0]}", intIs)
-        data.put("is${dayStringArray[1]}", intIs)
-        data.put("is${dayStringArray[2]}", intIs)
-        data.put("is${dayStringArray[3]}", intIs)
-        data.put("is${dayStringArray[4]}", intIs)
+        data.put("is${this.dayStringArray[0]}", intIs)
+        data.put("is${this.dayStringArray[1]}", intIs)
+        data.put("is${this.dayStringArray[2]}", intIs)
+        data.put("is${this.dayStringArray[3]}", intIs)
+        data.put("is${this.dayStringArray[4]}", intIs)
         val result = database.update("timetable", data, null, null)
         return result != -1
     }
 
-    fun insertData(timeArray: Array<String>, isArray: Array<Boolean>,preTime: Int): Boolean{
+    fun insertData(timeArray: Array<String>, isArray: Array<Boolean>, preTime: Int): Boolean{
+        val data = ContentValues()
+        for (i in 0..4) {
+            data.put(this.dayStringArray[i], timeArray[i])
+            data.put("is${this.dayStringArray[i]}", boolToInt(isArray[i]))
+        }
+        data.put("preTime", preTime)
+        val result = database.insert("timetable",null, data)
+        if (result != -1L) return false
         return true
     }
 
+    fun insertPath(path: String): Boolean{
+        val data = ContentValues()
+        data.put("path", path)
+        val result = database.insert("pathtable", null, data)
+        return result != -1L
+    }
+
+    fun deletePath(): Boolean{
+        val result = database.delete("pathtable", null, null)
+        return result != -1
+    }
+
+    fun updatePath(path: String): Boolean{
+        val data = ContentValues()
+        data.put("path", path)
+        val result = database.update("pathtable", data, null, null)
+        return result != -1
+    }
+
+    fun getPath(): String{
+        val sql = "select path from pathtable;"
+        val result = database.rawQuery(sql, null)
+        var path = ""
+        while (result.moveToNext()) {
+            path = result.getString(0)
+        }
+        result.close()
+        return path
+    }
+
+    private fun boolToInt(boolIs: Boolean): Int{
+        if (boolIs) return 1
+        return 0
+    }
 
 }

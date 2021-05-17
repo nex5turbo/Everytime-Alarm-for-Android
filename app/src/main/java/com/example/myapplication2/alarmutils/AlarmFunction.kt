@@ -1,9 +1,10 @@
-package com.example.myapplication2.utils
+package com.example.myapplication2.alarmutils
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
@@ -230,6 +231,7 @@ object AlarmFunction {
     }
 
     fun setAlarms(mon: String, tue: String, wed: String, thu: String, fri: String, mContext: Context, preTime: Int): Boolean{
+        Log.d("###", "set alarms")
         try {
             val dayArray = arrayOf(mon, tue, wed, thu, fri)
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -284,6 +286,7 @@ object AlarmFunction {
                         AlarmManager.RTC_WAKEUP,
                         calendar.timeInMillis,
                         pendingIntent)
+                Log.d("###", "success $i")
             }
         } catch (e: Exception){
             return false

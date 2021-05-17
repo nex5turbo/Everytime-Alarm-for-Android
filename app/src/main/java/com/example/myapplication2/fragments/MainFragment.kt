@@ -1,8 +1,8 @@
 package com.example.myapplication2.fragments
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import com.example.myapplication2.R
-import com.example.myapplication2.utils.DBFunction
+import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.utils.NetworkStatus
 import java.util.*
 
@@ -18,7 +18,7 @@ private const val TYPE_WIFI = 1
 private const val TYPE_MOBILE = 2
 private const val TYPE_NOT_CONNECTED = 3
 
-class MainFragment(private val mContext: Context, private val db: DBFunction):Fragment() {
+class MainFragment(private val mContext: Context, private val database: DBFunction):Fragment() {
     private var networkStatus = TYPE_NOT_CONNECTED
 
     override fun onCreateView(
@@ -31,6 +31,7 @@ class MainFragment(private val mContext: Context, private val db: DBFunction):Fr
         setText(tomWeek, rootView)
         setNetworkStatus()
         setFragmentResultListener("requestKey") { _, _ ->
+            Log.d("###", "Main Received")
             setText(tomWeek, rootView)
         }
 
@@ -49,7 +50,7 @@ class MainFragment(private val mContext: Context, private val db: DBFunction):Fr
     }
 
     private fun getDbTime(day: Int): String {
-        val time = db.getTime(day)
+        val time = database.getTime(day)
         if (time == "") {
             return "등록된 시간표가 없어요."
         }

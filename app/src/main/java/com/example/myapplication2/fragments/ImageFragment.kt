@@ -4,10 +4,10 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,21 +17,23 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import com.example.myapplication2.*
-import com.example.myapplication2.utils.AlarmFunction
+import com.example.myapplication2.alarmutils.AlarmFunction
 import com.example.myapplication2.OpenCvModule
-import com.example.myapplication2.utils.DBFunction
+import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.utils.RealPath
 import com.example.myapplication2.utils.TimeData
 import org.opencv.android.Utils
 import org.opencv.core.Mat
+import java.io.File
 import java.io.InputStream
 
 private const val GET_GALLERY_IMG = 200
 
-class ImageFragment(private val database: SQLiteDatabase, private val mContext: Context, private val db: DBFunction): Fragment() {
+class ImageFragment(private val mContext: Context, private val database: DBFunction): Fragment() {
     private var resultPath = ""
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
+    private var preTime = 30
 
     private lateinit var timeImageView: ImageView
     private lateinit var matResult: Mat
@@ -44,10 +46,28 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
     ): View {
         val rootView = inflater.inflate(R.layout.fragment_image, container, false) as ViewGroup
         timeImageView = rootView.findViewById(R.id.timeImage) as ImageView
+        setImage()
         timeImageView.setOnClickListener{
             openGallery()
         }
         return rootView
+    }
+
+    private fun setImage() {
+        val path = database.getPath()
+        Log.d("###", path)
+        if (path == "") {
+            return
+        }
+        Log.d("###", "getPath")
+        val file = File(path)
+        if (!file.exists()) {
+            return
+        }
+        Log.d("###", "exist file ${file.absolutePath}")
+
+        val mBitmap = BitmapFactory.decodeFile(file.absolutePath)
+        timeImageView.setImageBitmap(mBitmap)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -58,6 +78,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
             val realPath = RealPath()
             val uri = data.data
             resultPath = realPath.getRealPath(mContext, uri!!)!!
+
             val myBit: Bitmap = BitmapFactory.decodeStream(inputStream)
             val k = cvTest(myBit)
             Utils.bitmapToMat(myBit, k)
@@ -67,6 +88,8 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
             if(alarmArray != null){
                 val timeStringArray = arrayToTimeStringArray()
                 val dbStringArray = arrayToDbStringArray()
+                database.deletePath()
+                database.insertPath(resultPath)
                 setDialog(timeStringArray, dbStringArray, false)
             } else {
                 val emptyArray: Array<String> = arrayOf()
@@ -84,6 +107,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
             "thu" to thu,
             "fri" to fri,
             "pre" to pre))
+        Log.d("###", "request key sent")
     }
 
     private fun openGallery(){
@@ -92,12 +116,11 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
         startActivityForResult(intent, GET_GALLERY_IMG)
     }
 
-    private fun dbInsert(mon: String, tue: String, wed: String, thu: String, fri: String) {
-        var sql = "delete from timeTable"
-        database.execSQL(sql)
-        sql = "insert into timeTable (mon, tue, wed, thu, fri, ismon, istue, iswed, isthu, isfri, pretime) "+
-                "values ('$mon','$tue','$wed','$thu','$fri', 1, 1, 1, 1, 1, 30)"
-        database.execSQL(sql)
+    private fun dbInsert(timeArray: Array<String>) {
+        val isArray = arrayOf(true, true, true, true, true)
+
+        database.delete()
+        database.insertData(timeArray, isArray, preTime)
     }
 
     private fun cvTest(myBit: Bitmap): Mat {
@@ -135,6 +158,7 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
             return timeStringArray
         }
     }
+
     private fun arrayToDbStringArray(): Array<String>{
         if (alarmArray == null) {
             return arrayOf()
@@ -165,7 +189,8 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
                         openGallery()
                         Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
                     }.setNegativeButton("취소") {_,_ ->
-                        Toast.makeText(mContext, "취소", Toast.LENGTH_SHORT).show()
+                        setImage()
+                        Toast.makeText(mContext, "다음에 할게요", Toast.LENGTH_SHORT).show()
                     }
                     .setCancelable(false)
                     .show()
@@ -188,12 +213,18 @@ class ImageFragment(private val database: SQLiteDatabase, private val mContext: 
                     .setTitle("시간표 분석 완료!")
                     .setNegativeButton("설정하기") { _, _ ->
                         Toast.makeText(mContext, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
-                        dbInsert(dbMon, dbTue, dbWed, dbThu, dbFri)
-                        sendResult(dbMon, dbTue, dbWed, dbThu, dbFri, 30)
+                        Log.d("###", "alarm accepted")
+                        Log.d("###", AlarmFunction.setAlarms(dbMon, dbTue, dbWed, dbThu, dbFri, mContext, preTime).toString()) //성공여부에 따라 다이얼로그 띄우기
+                        dbInsert(dbStringArray)
+                        sendResult(dbMon, dbTue, dbWed, dbThu, dbFri, preTime)
                     }
                     .setPositiveButton("다시하기") { _, _ ->
                         openGallery()
                         Toast.makeText(mContext, "다시 선택할게요~!", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNeutralButton("취소") {_,_->
+                        setImage()
+                        Toast.makeText(mContext, "다음에 할게요~!", Toast.LENGTH_SHORT).show()
                     }
                     .setCancelable(false)
                     .show()

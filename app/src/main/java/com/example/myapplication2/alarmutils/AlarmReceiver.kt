@@ -1,4 +1,4 @@
-package com.example.myapplication2.utils
+package com.example.myapplication2.alarmutils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,8 +10,10 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.example.myapplication2.MainActivity
+import com.example.myapplication2.activities.MainActivity
 import com.example.myapplication2.R
+import com.example.myapplication2.dbutils.DBFunction
+import com.example.myapplication2.dbutils.DBHelper
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -53,6 +55,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 contentIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
+
         val builder =
                 NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_background)
