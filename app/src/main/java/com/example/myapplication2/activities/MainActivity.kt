@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import com.example.myapplication2.R
 import com.example.myapplication2.ViewPagerAdapter
-import com.example.myapplication2.WeatherApi
+import com.example.myapplication2.weatherapi.WeatherApi
 import com.example.myapplication2.databinding.ActivityMainBinding
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         dbHelper = DBHelper(this, "mydb.db", null, 1)
         database = dbHelper.writableDatabase
         db = DBFunction(database)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.viewPager.adapter = ViewPagerAdapter(this, db)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {

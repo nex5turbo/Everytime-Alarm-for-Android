@@ -1,4 +1,4 @@
-package com.example.myapplication2
+package com.example.myapplication2.weatherapi
 
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit

@@ -1,4 +1,4 @@
-package com.example.myapplication2
+package com.example.myapplication2.weatherapi
 
 import com.google.gson.annotations.SerializedName
 
@@ -19,11 +19,11 @@ data class Body(
 )
 
 data class MyData (
-    @SerializedName("location")
+        @SerializedName("location")
     val location: Location,
-    @SerializedName("weather")
+        @SerializedName("weather")
     val weather: Weather,
-    @SerializedName("lottery")
+        @SerializedName("lottery")
     val lottery: List<Int>
 )
 

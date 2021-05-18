@@ -15,10 +15,14 @@ class ViewPagerAdapter(private val fa: FragmentActivity, private val database: D
 
     override fun createFragment(position: Int): Fragment {
         var frag: Fragment? = null
+        val mainFragment = MainFragment(fa, database)
+        val imageFragment = ImageFragment(fa, database)
+        val settingFragment = SettingFragment(fa, database)
+
         when (position) {
-            0->frag = MainFragment(fa, database)
-            1->frag = ImageFragment(fa, database)
-            2->frag = SettingFragment(fa, database)
+            0->frag = mainFragment
+            1->frag = imageFragment
+            2->frag = settingFragment
         }
         return frag!!
     }

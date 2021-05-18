@@ -213,7 +213,6 @@ class ImageFragment(private val mContext: Context, private val database: DBFunct
                     .setTitle("시간표 분석 완료!")
                     .setNegativeButton("설정하기") { _, _ ->
                         Toast.makeText(mContext, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
-                        Log.d("###", "alarm accepted")
                         Log.d("###", AlarmFunction.setAlarms(dbMon, dbTue, dbWed, dbThu, dbFri, mContext, preTime).toString()) //성공여부에 따라 다이얼로그 띄우기
                         dbInsert(dbStringArray)
                         sendResult(dbMon, dbTue, dbWed, dbThu, dbFri, preTime)

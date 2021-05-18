@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import java.lang.Exception
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -166,6 +167,7 @@ object AlarmFunction {
     }
 
     fun setAlarm(day: Int, time: String, mContext: Context, preTime: Int): Boolean{
+        Log.d("###", "set 1 alarm")
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(mContext, AlarmReceiver::class.java)
@@ -175,7 +177,16 @@ object AlarmFunction {
             val minute = dayTime[1].toInt() - preTime
 
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+            val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+            alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
+            alarmCalendar.set(Calendar.MINUTE, minute)
+            alarmCalendar.set(Calendar.SECOND, 0)
             val nowDay = calendar.get(Calendar.DAY_OF_WEEK)
+            val formatter1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val formattedc = formatter1.format(calendar.timeInMillis)
+            val formatteda = formatter1.format(alarmCalendar.timeInMillis)
+            Log.d("###", "now = $formattedc")
+            Log.d("###", "alarm = $formatteda")
 
             if (day < nowDay) {
                 calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
@@ -184,9 +195,9 @@ object AlarmFunction {
                 calendar.set(Calendar.MINUTE, minute)
                 calendar.set(Calendar.SECOND, 0)
             } else if (day== nowDay) {
-                val nowTime = calendar.get(Calendar.HOUR_OF_DAY) * 10000 + calendar.get(Calendar.MINUTE) * 100 + calendar.get(Calendar.SECOND)
-                val alarmTime = hour * 10000 + minute * 100
-                if (nowTime > alarmTime) {
+                val nowTime = calendar.timeInMillis
+                val alarmTime = alarmCalendar.timeInMillis
+                if (nowTime >= alarmTime) {
                     calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
                     calendar.set(Calendar.DAY_OF_WEEK, day)
                     calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -212,6 +223,9 @@ object AlarmFunction {
                     calendar.timeInMillis,
                     pendingIntent)
 
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val formatted = formatter.format(calendar.timeInMillis)
+            Log.d("###", "$formatted")
         } catch (e:Exception) {
             return false
         }
@@ -250,6 +264,10 @@ object AlarmFunction {
                         PendingIntent.FLAG_UPDATE_CURRENT)
 
                 val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+                val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+                alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
+                alarmCalendar.set(Calendar.MINUTE, minute)
+                alarmCalendar.set(Calendar.SECOND, 0)
                 val nowDay = calendar.get(Calendar.DAY_OF_WEEK)
 
                 if (i + 2 < nowDay) {
@@ -259,9 +277,9 @@ object AlarmFunction {
                     calendar.set(Calendar.MINUTE, minute)
                     calendar.set(Calendar.SECOND, 0)
                 } else if (i + 2 == nowDay) {
-                    val nowTime = calendar.get(Calendar.HOUR_OF_DAY) * 10000 + calendar.get(Calendar.MINUTE) * 100 + calendar.get(Calendar.SECOND)
-                    val alarmTime = hour * 10000 + minute * 100
-                    if (nowTime > alarmTime) {
+                    val nowTime = calendar.timeInMillis
+                    val alarmTime = alarmCalendar.timeInMillis
+                    if (nowTime >= alarmTime) {
                         calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
                         calendar.set(Calendar.DAY_OF_WEEK, i + 2)
                         calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -286,7 +304,9 @@ object AlarmFunction {
                         AlarmManager.RTC_WAKEUP,
                         calendar.timeInMillis,
                         pendingIntent)
-                Log.d("###", "success $i")
+                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                val formatted = formatter.format(calendar.timeInMillis)
+                Log.d("###", "$formatted")
             }
         } catch (e: Exception){
             return false

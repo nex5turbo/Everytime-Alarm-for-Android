@@ -29,6 +29,8 @@ class SettingFragment(private val mContext: Context, private val database: DBFun
         val friButton = rootView.findViewById(R.id.friButton) as Button
         val buttonArray: Array<Button> = arrayOf(monButton, tueButton, wedButton, thuButton, friButton)
 
+        Log.d("###", "setting inflated")
+
         setFragmentResultListener("requestKey") { _, bundle ->
             Log.d("###", "Received request key")
             val mon = bundle.getString("mon")!!

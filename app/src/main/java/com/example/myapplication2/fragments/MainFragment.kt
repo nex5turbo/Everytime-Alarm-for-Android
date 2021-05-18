@@ -31,7 +31,6 @@ class MainFragment(private val mContext: Context, private val database: DBFuncti
         setText(tomWeek, rootView)
         setNetworkStatus()
         setFragmentResultListener("requestKey") { _, _ ->
-            Log.d("###", "Main Received")
             setText(tomWeek, rootView)
         }
 
