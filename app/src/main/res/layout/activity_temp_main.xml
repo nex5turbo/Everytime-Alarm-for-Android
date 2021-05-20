@@ -103,7 +103,7 @@
             android:id="@+id/mondaySwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Switch"
+            android:text="노래+진동"
             app:layout_constraintBottom_toBottomOf="@+id/dayMonTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dayMonTextView" />
@@ -143,7 +143,7 @@
             android:id="@+id/tuesdaySwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Switch"
+            android:text="노래+진동"
             app:layout_constraintBottom_toBottomOf="@+id/dayTueTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dayTueTextView" />
@@ -183,13 +183,13 @@
             android:id="@+id/wednesdaySwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Switch"
+            android:text="노래+진동"
             app:layout_constraintBottom_toBottomOf="@+id/dayWedTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dayWedTextView" />
 
         <TextView
-            android:id="@+id/wedmesdayTimeTextView"
+            android:id="@+id/wednesdayTimeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -199,4 +199,94 @@
             app:layout_constraintTop_toTopOf="@+id/dayWedTextView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/thursdayLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wednesdayLayout"
+        app:layout_constraintWidth_percent="0.9">
+
+        <TextView
+            android:id="@+id/dayThuTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="목"
+            android:textSize="19sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/thursdaySwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="노래+진동"
+            app:layout_constraintBottom_toBottomOf="@+id/dayThuTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/dayThuTextView" />
+
+        <TextView
+            android:id="@+id/thursdayTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="오전 8:30"
+            app:layout_constraintBottom_toBottomOf="@+id/dayThuTextView"
+            app:layout_constraintStart_toEndOf="@+id/dayThuTextView"
+            app:layout_constraintTop_toTopOf="@+id/dayThuTextView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fridayLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/thursdayLayout"
+        app:layout_constraintWidth_percent="0.9">
+
+        <TextView
+            android:id="@+id/dayFriTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="금"
+            android:textSize="19sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/fridaySwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="노래+진동"
+            app:layout_constraintBottom_toBottomOf="@+id/dayFriTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/dayFriTextView" />
+
+        <TextView
+            android:id="@+id/fridayTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="오전 8:30"
+            app:layout_constraintBottom_toBottomOf="@+id/dayFriTextView"
+            app:layout_constraintStart_toEndOf="@+id/dayFriTextView"
+            app:layout_constraintTop_toTopOf="@+id/dayFriTextView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adSize="BANNER"
+        app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
