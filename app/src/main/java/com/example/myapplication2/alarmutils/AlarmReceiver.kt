@@ -1,13 +1,15 @@
 package com.example.myapplication2.alarmutils
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.WIFI_SERVICE
 import android.content.Intent
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.Ringtone
+import android.media.RingtoneManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -20,22 +22,22 @@ import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
 import java.util.*
 
-@Suppress("DEPRECATION")
 class AlarmReceiver : BroadcastReceiver() {
     companion object {
         const val TAG = "AlarmReceiver"
-        const val NOTIFICATION_ID = 0
+        const val NOTIFICATION_ID = 101
         const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     }
 
     private var sCpuWakeLock: PowerManager.WakeLock? = null
     private var sWifiLock: WifiManager.WifiLock? = null
-    private var manager: ConnectivityManager? = null
     private lateinit var notificationManager: NotificationManager
+    private var r: Ringtone? = null
 
     override fun onReceive(context: Context, intent: Intent) {
         createNextAlarm(context)
         Log.d(TAG, "Received intent : $intent")
+
         if (sCpuWakeLock != null) {
             return
         }
@@ -58,18 +60,20 @@ class AlarmReceiver : BroadcastReceiver() {
 
         sCpuWakeLock!!.acquire()
 
+        val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (!km.inKeyguardRestrictedInputMode() || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
+//            ringtone(context)
+            notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            createNotificationChannel()
+            deliverNotification(context)
+        } else {
+            val alarmIntent = Intent("android.intent.action.sec")
 
-        manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            alarmIntent.setClass(context, AlarmReceiveActivity::class.java)
+            alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
-
-        val alarmIntent = Intent("android.intent.action.sec")
-
-        alarmIntent.setClass(context, AlarmReceiveActivity::class.java)
-        alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-        // 액티비티를 띄운다
-
-        context.startActivity(alarmIntent)
+            context.startActivity(alarmIntent)
+        }
 
         if(sWifiLock != null) {
             sWifiLock!!.release()
@@ -80,7 +84,6 @@ class AlarmReceiver : BroadcastReceiver() {
             sCpuWakeLock!!.release()
             sCpuWakeLock = null
         }
-
     }
 
     private fun createNextAlarm(context: Context){
@@ -103,17 +106,16 @@ class AlarmReceiver : BroadcastReceiver() {
                 contentIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
         )
-
         val builder =
                 NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher_background)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle("Alert")
                         .setContentText("This is repeating alarm")
-                        .setContentIntent(contentPendingIntent)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setAutoCancel(true)
-                        .setDefaults(NotificationCompat.DEFAULT_ALL)
-
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setFullScreenIntent(contentPendingIntent, true)
+                        .setAutoCancel(false)
+                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE), AudioManager.STREAM_MUSIC)
+                        .setDefaults(Notification.DEFAULT_ALL)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
@@ -128,13 +130,22 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
             notificationChannel.description = "AlarmManager Tests"
+            val alarmAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .build()
+            notificationChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE), alarmAttributes)
             notificationManager.createNotificationChannel(
                     notificationChannel)
         }
     }
 
+    private fun ringtone(mContext: Context) {
+        val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        r = RingtoneManager.getRingtone(mContext, notification)
+        r!!.setStreamType(AudioManager.STREAM_MUSIC)
+        r!!.play()
+    }
+
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)
 }
-
-//        notificationManager = context.getSystemService(
-//                Context.NOTIFICATION_SERVICE) as NotificationManager

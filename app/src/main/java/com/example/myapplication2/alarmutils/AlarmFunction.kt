@@ -167,11 +167,13 @@ object AlarmFunction {
     }
 
     fun setAlarm(day: Int, time: String, mContext: Context, preTime: Int): Boolean{
+        if (time == "no") return false
         Log.d("###", "set 1 alarm")
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(mContext, AlarmReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(mContext, day, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
             val dayTime = time.split(",")
             val hour = dayTime[0].toInt()
             val minute = dayTime[1].toInt() - preTime
@@ -227,6 +229,7 @@ object AlarmFunction {
             val formatted = formatter.format(calendar.timeInMillis)
             Log.d("###", "$formatted")
         } catch (e:Exception) {
+            Log.d("###", e.toString())
             return false
         }
         return true

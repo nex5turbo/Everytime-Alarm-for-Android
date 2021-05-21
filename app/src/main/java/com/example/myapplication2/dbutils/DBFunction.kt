@@ -113,8 +113,7 @@ class DBFunction(private val database: SQLiteDatabase) {
         }
         data.put("preTime", preTime)
         val result = database.insert("timetable",null, data)
-        if (result != -1L) return false
-        return true
+        return result != -1L
     }
 
     fun insertPath(path: String): Boolean{
