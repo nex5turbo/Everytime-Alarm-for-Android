@@ -44,7 +44,7 @@ class DBFunction(private val database: SQLiteDatabase) {
     fun getAllTime(): Array<String>{
         val sql = "select * from timetable"
         val result = database.rawQuery(sql, null)
-        var timeArray = arrayOf("")
+        var timeArray: Array<String> = arrayOf()
         while (result.moveToNext()) {
             val mon = result.getString(1)
             val tue = result.getString(2)

@@ -25,7 +25,6 @@ class AlarmReceiveActivity : AppCompatActivity() {
     private lateinit var stopButton: Button
     private var r: Ringtone? = null
 
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_receive)
@@ -39,9 +38,8 @@ class AlarmReceiveActivity : AppCompatActivity() {
 
         setTurnScreenOn(true)
         setShowWhenLocked(true)
-        val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        km.requestDismissKeyguard(this, null)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
 
         initRingtone()
         initListener()
@@ -57,12 +55,18 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
     private fun initRingtone() {
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         r = RingtoneManager.getRingtone(this, notification)
         r!!.setStreamType(AudioManager.STREAM_MUSIC)
         r!!.isLooping = true
         r!!.play()
+    }
+
+    override fun onDestroy() {
+        if (r!=null) {
+            r!!.stop()
+        }
+        super.onDestroy()
     }
 }

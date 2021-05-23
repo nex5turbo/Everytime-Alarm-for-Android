@@ -84,7 +84,7 @@
         android:id="@+id/mondayLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/infoTextView"
@@ -95,7 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="월"
-            android:textSize="19sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -105,7 +105,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dayMonTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dayMonTextView" />
+            app:layout_constraintTop_toTopOf="@+id/dayMonTextView"
+            app:sb_checked="true" />
 
         <TextView
             android:id="@+id/mondayTimeTextView"
@@ -134,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="화"
-            android:textSize="19sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -144,7 +145,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dayTueTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dayTueTextView" />
+            app:layout_constraintTop_toTopOf="@+id/dayTueTextView"
+            app:sb_checked="true" />
 
         <TextView
             android:id="@+id/tuesdayTimeTextView"
@@ -173,7 +175,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="수"
-            android:textSize="19sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -183,7 +185,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dayWedTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dayWedTextView" />
+            app:layout_constraintTop_toTopOf="@+id/dayWedTextView"
+            app:sb_checked="true" />
 
         <TextView
             android:id="@+id/wednesdayTimeTextView"
@@ -212,7 +215,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="목"
-            android:textSize="19sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -222,7 +225,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dayThuTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dayThuTextView" />
+            app:layout_constraintTop_toTopOf="@+id/dayThuTextView"
+            app:sb_checked="true" />
 
         <TextView
             android:id="@+id/thursdayTimeTextView"
@@ -251,7 +255,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="금"
-            android:textSize="19sp"
+            android:textSize="32sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -261,7 +265,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/dayFriTextView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dayFriTextView" />
+            app:layout_constraintTop_toTopOf="@+id/dayFriTextView"
+            app:sb_checked="true" />
 
         <TextView
             android:id="@+id/fridayTimeTextView"

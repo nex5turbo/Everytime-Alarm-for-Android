@@ -2,12 +2,16 @@ package com.example.myapplication2.activities
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
@@ -20,6 +24,7 @@ import android.widget.Toast
 import com.example.myapplication2.OpenCvModule
 import com.example.myapplication2.R
 import com.example.myapplication2.alarmutils.AlarmFunction
+import com.example.myapplication2.alarmutils.AlarmReceiver
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
 import com.example.myapplication2.utils.RealPath
@@ -96,11 +101,23 @@ class TempMainActivity : AppCompatActivity() {
         adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
 
+        initPreferences()
         initWidgets()
         initListener()
         initDatabase()
         initAlarmUI()
         initTest()
+    }
+
+    private fun initPreferences() {
+        val preferences = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val isFirst = preferences.getBoolean("isFirst", false)
+        if (!isFirst) {
+            createNotificationChannel()
+            val editor = preferences.edit()
+            editor.putBoolean("isFirst", true)
+            editor.commit()
+        }
     }
 
     private fun initTest() {
@@ -117,7 +134,22 @@ class TempMainActivity : AppCompatActivity() {
             Toast.makeText(this, "1분후 알람", Toast.LENGTH_SHORT).show()
         }
     }
-
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationChannel = NotificationChannel(
+                AlarmReceiver.PRIMARY_CHANNEL_ID,
+                "나즈 알람",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.description = "나즈 채널"
+            notificationManager.createNotificationChannel(
+                notificationChannel)
+        }
+    }
     private fun initAlarmUI() {
         setAlarmUI()
     }
@@ -390,6 +422,7 @@ class TempMainActivity : AppCompatActivity() {
                 returnArray[i] = "오늘 공강!"
             } else {
                 val tempSplit = dbString.split(",")
+                Log.d("###", tempSplit.toString())
                 val hour = tempSplit[0]
                 val minute = tempSplit[1]
                 val preTime = database.getPreTime()
@@ -408,7 +441,7 @@ class TempMainActivity : AppCompatActivity() {
             val tempTimeString = timeStringArray[i]
             val content =
                 SpannableText.
-                convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, true, 20)
+                convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, true, 32)
 
             if (tempTimeString == "오늘 공강!") {
                 tempDayTextView.setTextColor(Color.RED)

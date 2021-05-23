@@ -32,10 +32,9 @@ class AlarmReceiver : BroadcastReceiver() {
     private var sCpuWakeLock: PowerManager.WakeLock? = null
     private var sWifiLock: WifiManager.WifiLock? = null
     private lateinit var notificationManager: NotificationManager
-    private var r: Ringtone? = null
 
     override fun onReceive(context: Context, intent: Intent) {
-        createNextAlarm(context)
+//        createNextAlarm(context)
         Log.d(TAG, "Received intent : $intent")
 
         if (sCpuWakeLock != null) {
@@ -64,7 +63,6 @@ class AlarmReceiver : BroadcastReceiver() {
         if (!km.inKeyguardRestrictedInputMode() || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
 //            ringtone(context)
             notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            createNotificationChannel()
             deliverNotification(context)
         } else {
             val alarmIntent = Intent("android.intent.action.sec")
@@ -99,53 +97,17 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun deliverNotification(context: Context) {
-        val contentIntent = Intent(context, AlarmReceiveActivity::class.java)
-        val contentPendingIntent = PendingIntent.getActivity(
-                context,
-                NOTIFICATION_ID,
-                contentIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
         val builder =
                 NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setContentTitle("Alert")
-                        .setContentText("This is repeating alarm")
+                        .setContentTitle("잠시후에 1교시 수업이 시작돼요!")
+                        .setContentText("서둘러서 준비해요!")
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setFullScreenIntent(contentPendingIntent, true)
                         .setAutoCancel(false)
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE), AudioManager.STREAM_MUSIC)
                         .setDefaults(Notification.DEFAULT_ALL)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                    PRIMARY_CHANNEL_ID,
-                    "Stand up notification",
-                    NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.description = "AlarmManager Tests"
-            val alarmAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                .build()
-            notificationChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE), alarmAttributes)
-            notificationManager.createNotificationChannel(
-                    notificationChannel)
-        }
-    }
-
-    private fun ringtone(mContext: Context) {
-        val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        r = RingtoneManager.getRingtone(mContext, notification)
-        r!!.setStreamType(AudioManager.STREAM_MUSIC)
-        r!!.play()
-    }
 
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)
 }
