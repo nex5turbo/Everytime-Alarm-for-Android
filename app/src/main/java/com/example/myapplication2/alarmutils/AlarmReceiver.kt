@@ -3,18 +3,9 @@ package com.example.myapplication2.alarmutils
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Context.WIFI_SERVICE
 import android.content.Intent
-import android.graphics.Color
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.media.Ringtone
-import android.media.RingtoneManager
-import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
-import android.os.Build
 import android.os.PowerManager
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.myapplication2.R
 import com.example.myapplication2.activities.AlarmReceiveActivity
@@ -34,8 +25,7 @@ class AlarmReceiver : BroadcastReceiver() {
     private lateinit var notificationManager: NotificationManager
 
     override fun onReceive(context: Context, intent: Intent) {
-//        createNextAlarm(context)
-        Log.d(TAG, "Received intent : $intent")
+        createNextAlarm(context)
 
         if (sCpuWakeLock != null) {
             return
@@ -45,7 +35,7 @@ class AlarmReceiver : BroadcastReceiver() {
             return
         }
 
-        val wifiManager = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         sWifiLock = wifiManager.createWifiLock("wifilock")
         sWifiLock!!.setReferenceCounted(true)
         sWifiLock!!.acquire()
@@ -60,8 +50,7 @@ class AlarmReceiver : BroadcastReceiver() {
         sCpuWakeLock!!.acquire()
 
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (!km.inKeyguardRestrictedInputMode() || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
-//            ringtone(context)
+        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
             notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             deliverNotification(context)
         } else {
@@ -107,7 +96,6 @@ class AlarmReceiver : BroadcastReceiver() {
                         .setDefaults(Notification.DEFAULT_ALL)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
-
 
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)
 }

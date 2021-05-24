@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -39,6 +40,7 @@ import org.opencv.core.Mat
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.jar.Manifest
 import kotlin.collections.ArrayList
 
 const val TIME_TABLE_REQUEST_CODE = 200
@@ -91,11 +93,13 @@ class TempMainActivity : AppCompatActivity() {
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
     private var resultPath = ""
+    private var preTime = 30
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_temp_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         MobileAds.initialize(this){}
         adView = findViewById(R.id.adView)
         adRequest = AdRequest.Builder().build()
@@ -111,21 +115,34 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun initPreferences() {
         val preferences = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
-        val isFirst = preferences.getBoolean("isFirst", false)
-        if (!isFirst) {
+        val isFirst = preferences.getBoolean("isFirst", true)
+        if (isFirst) {
             createNotificationChannel()
             val editor = preferences.edit()
-            editor.putBoolean("isFirst", true)
-            editor.commit()
+            editor.putBoolean("isFirst", false)
+            editor.putInt("preTime", 30)
+            editor.putString("musicPath", "")
+            editor.apply()
         }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+//                    || checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                    Toast.makeText(this, "외부저장소를 사용하기 위해 필요", Toast.LENGTH_SHORT).show()
+//                }
+//                requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 2)
+//            } else {
+//                Toast.makeText(this, "권한 승인 됨", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+        this.preTime = preferences.getInt("preTime", 30)
     }
 
     private fun initTest() {
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-            val formatter1 = SimpleDateFormat("HH,mm")
-            val formatted = formatter1.format(calendar.timeInMillis).split(",")
+            val formatted = SimpleDateFormat("HH,mm").format(calendar.timeInMillis).split(",")
             val hour = formatted[0].toInt()
             val minute = formatted[1].toInt() + 1
             val testTime = "$hour,$minute"
@@ -134,6 +151,7 @@ class TempMainActivity : AppCompatActivity() {
             Toast.makeText(this, "1분후 알람", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -162,7 +180,6 @@ class TempMainActivity : AppCompatActivity() {
 
         val timeStringArray = convertDBArrayToTimeStringArray(dbStringArray)
         val isArray = database.getAllIs()
-        val preTime = database.getPreTime()
         setTimeUI(timeStringArray, isArray)
         val tomorrowDayOfWeek = getDayOfWeek(TOMORROW)
         val infoText = if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
@@ -177,7 +194,7 @@ class TempMainActivity : AppCompatActivity() {
             val tomorrowTime = getTime(tomorrowDayOfWeek).split(",")
             val hour = tomorrowTime[0]
             val minute = tomorrowTime[1]
-            val tomorrowAlarmTime = formatTimeString(hour, minute, preTime)
+            val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
             val tomorrowClassTime = formatTimeString(hour, minute)
             val text = "내일(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
                     "${tomorrowAlarmTime}에 깨워드릴게요!"
@@ -204,11 +221,12 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun initListener() {
         settingButton.setOnClickListener {
-
+            openAudioGallery()
         }
         timeTableButton.setOnClickListener {
             openGallery()
         }
+
         for (i in 0..4) {
             val tempSwitch = switchArray[i]
             tempSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -276,6 +294,12 @@ class TempMainActivity : AppCompatActivity() {
         startActivityForResult(intent, TIME_TABLE_REQUEST_CODE)
     }
 
+    private fun openAudioGallery() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "audio/*")
+        startActivityForResult(intent, SETTING_REQUEST_CODE)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == TIME_TABLE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.data != null){
@@ -298,8 +322,18 @@ class TempMainActivity : AppCompatActivity() {
                 val emptyArray: Array<String> = arrayOf()
                 setDialog(emptyArray, emptyArray,true)
             }
-        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            //TODO
+        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val realPath = RealPath()
+            val uri = data.data ?: return
+            val audioPath = realPath.getRealPath(this, uri)
+            if (audioPath == null) {
+                Toast.makeText(this, "wrong Path", Toast.LENGTH_SHORT).show()
+            } else {
+                val preference = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+                val editor = preference.edit()
+                editor.putString("musicPath", audioPath)
+                editor.apply()
+            }
         }
     }
 
@@ -311,8 +345,11 @@ class TempMainActivity : AppCompatActivity() {
         matResult.release()
         matResult = Mat(matInput.rows(), matInput.cols(), matInput.type())
         val resultArray = OpenCvModule().ConvertRGBtoGray(matInput.nativeObjAddr, matResult.nativeObjAddr)
-
-        alarmArray = AlarmFunction.splitArr(resultArray)
+        alarmArray = if (resultArray == null) {
+            null
+        } else {
+            AlarmFunction.splitArr(resultArray)
+        }
     }
 
     private fun arrayToTimeStringArray(): Array<String>{
@@ -389,7 +426,7 @@ class TempMainActivity : AppCompatActivity() {
                 .setTitle("시간표 분석 완료!")
                 .setNegativeButton("설정하기") { _, _ ->
                     Toast.makeText(this, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
-                    AlarmFunction.setAlarms(dbMon, dbTue, dbWed, dbThu, dbFri, this, 90).toString() //성공여부에 따라 다이얼로그 띄우기
+                    AlarmFunction.setAlarms(dbMon, dbTue, dbWed, dbThu, dbFri, this, this.preTime).toString() //성공여부에 따라 다이얼로그 띄우기
                     dbInsert(dbStringArray)
                     val isArray = arrayOf(dbMon != "no", dbTue != "no", dbWed != "no", dbThu != "no", dbFri != "no")
                     setTimeUI(timeStringArray, isArray)
@@ -411,7 +448,7 @@ class TempMainActivity : AppCompatActivity() {
         val isArray = arrayOf(true, true, true, true, true)
 
         database.delete()
-        database.insertData(timeArray, isArray, 30)
+        database.insertData(timeArray, isArray, this.preTime)
     }
 
     private fun convertDBArrayToTimeStringArray(dbArray: Array<String>): Array<String> {
@@ -425,8 +462,7 @@ class TempMainActivity : AppCompatActivity() {
                 Log.d("###", tempSplit.toString())
                 val hour = tempSplit[0]
                 val minute = tempSplit[1]
-                val preTime = database.getPreTime()
-                returnArray[i] = formatTimeString(hour, minute, preTime)
+                returnArray[i] = formatTimeString(hour, minute, this.preTime)
             }
         }
         return returnArray
@@ -441,7 +477,7 @@ class TempMainActivity : AppCompatActivity() {
             val tempTimeString = timeStringArray[i]
             val content =
                 SpannableText.
-                convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, true, 32)
+                convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, false, 32)
 
             if (tempTimeString == "오늘 공강!") {
                 tempDayTextView.setTextColor(Color.RED)
@@ -486,7 +522,6 @@ class TempMainActivity : AppCompatActivity() {
         } else {
             intMinute -= (preTime % 60)
         }
-
         return formatTimeString(intHour.toString(), intMinute.toString())
     }
 
@@ -499,7 +534,6 @@ class TempMainActivity : AppCompatActivity() {
         }
         return "오전 $hour:$returnMinute"
     }
-
 
     override fun onPause(){
         adView.pause()

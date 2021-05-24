@@ -317,5 +317,4 @@ object AlarmFunction {
         }
         return true
     }
-
 }

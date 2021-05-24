@@ -17,15 +17,19 @@ class RealPath() {
     fun getRealPath(context: Context, fileUri: Uri): String? {
         val realPath: String?
         // SDK < API11
-        if (Build.VERSION.SDK_INT < 11) {
-            Log.d("#11", "ok")
-            realPath = getRealPathFromURI_BelowAPI11(context, fileUri)
-        } else if (Build.VERSION.SDK_INT < 19) {
-            realPath = getRealPathFromURI_API11to18(context, fileUri)
-            Log.d("#18", "ok")
-        } else {
-            Log.d("#19", "ok")
-            realPath = getRealPathFromURI_API19(context, fileUri)
+        when {
+            Build.VERSION.SDK_INT < 11 -> {
+                Log.d("#11", "ok")
+                realPath = getRealPathFromURI_BelowAPI11(context, fileUri)
+            }
+            Build.VERSION.SDK_INT < 19 -> {
+                realPath = getRealPathFromURI_API11to18(context, fileUri)
+                Log.d("#18", "ok")
+            }
+            else -> {
+                Log.d("#19", "ok")
+                realPath = getRealPathFromURI_API19(context, fileUri)
+            }
         }// SDK > 19 (Android 4.4) and up
         // SDK >= 11 && SDK < 19
         return realPath
@@ -107,10 +111,10 @@ class RealPath() {
                 } else if ("audio" == type) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                 }
-
+                Log.d("####type=", "$type")
                 val selection = "_id=?"
                 val selectionArgs = arrayOf(split[1])
-
+                Log.d("####selection", "ok")
                 return getDataColumn(context, contentUri, selection, selectionArgs)
             }
         } else if ("content".equals(uri.scheme!!, ignoreCase = true)) {
@@ -130,7 +134,7 @@ class RealPath() {
         context: Context, uri: Uri?, selection: String?,
         selectionArgs: Array<String>?
     ): String? {
-
+        Log.d("####getDataColumn", "ok")
         var cursor: Cursor? = null
         val column = "_data"
         val projection = arrayOf(column)
@@ -144,6 +148,7 @@ class RealPath() {
         } finally {
             cursor?.close()
         }
+        Log.d("####return NULL?", "yes")
         return null
     }
 
