@@ -236,6 +236,38 @@ object AlarmFunction {
         return true
     }
 
+    fun setTest(mContext: Context): Boolean{
+        Log.d("###", "set test alarm")
+        val TESTCODE = 101
+        try {
+            val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(mContext, AlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(mContext, TESTCODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+            val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+            alarmCalendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) + 10)
+            val formatter1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val formattedc = formatter1.format(calendar.timeInMillis)
+            val formatteda = formatter1.format(alarmCalendar.timeInMillis)
+            Log.d("###", "now = $formattedc")
+            Log.d("###", "alarm = $formatteda")
+
+            alarmManager.setExact(   // 5
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent)
+
+            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val formatted = formatter.format(calendar.timeInMillis)
+            Log.d("###", "$formatted")
+        } catch (e:Exception) {
+            Log.d("###", e.toString())
+            return false
+        }
+        return true
+    }
+
     fun cancelAlarm(day: Int, mContext: Context): Boolean {
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager

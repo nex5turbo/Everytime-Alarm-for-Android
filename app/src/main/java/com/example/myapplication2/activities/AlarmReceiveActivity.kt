@@ -6,10 +6,8 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.*
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
+import android.os.*
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +28,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_receive)
+
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         initAdvertisement()
@@ -46,11 +45,9 @@ class AlarmReceiveActivity : AppCompatActivity() {
                     or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
         }
-
         initRingtone()
         initListener()
         startRingtone()
-        initVibrator()
     }
 
     private fun initAdvertisement() {
@@ -64,7 +61,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
     }
 
     private fun initVibrator() {
-        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val pattern = longArrayOf(100,200,300,400,300,200)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -96,12 +93,13 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
         alarmPlayer!!.setDataSource(this, mediaURI)
         alarmPlayer!!.isLooping = true
-        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
         alarmPlayer!!.prepare()
     }
 
     private fun startRingtone() {
         alarmPlayer!!.start()
+        initVibrator()
     }
 
     override fun onBackPressed() {

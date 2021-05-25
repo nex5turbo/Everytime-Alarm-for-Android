@@ -153,24 +153,9 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun initTest() {
-        val calendar1 = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-        val formatted1 = SimpleDateFormat("HH,mm").format(calendar1.timeInMillis).split(",")
-        val hour1 = formatted1[0].toInt()
-        val minute1 = formatted1[1].toInt() + 1
-        val testTime1 = "$hour1,$minute1"
-        val day1 = calendar1.get(Calendar.DAY_OF_WEEK)
-        AlarmFunction.setAlarm(day1, testTime1, this, 0)
-
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
-            val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-            val formatted = SimpleDateFormat("HH,mm").format(calendar.timeInMillis).split(",")
-            val hour = formatted[0].toInt()
-            val minute = formatted[1].toInt() + 1
-            val testTime = "$hour,$minute"
-            val day = calendar.get(Calendar.DAY_OF_WEEK)
-            AlarmFunction.setAlarm(day, testTime, this, 0)
-            Toast.makeText(this, "1분후 알람", Toast.LENGTH_SHORT).show()
+            AlarmFunction.setTest(this)
         }
     }
 
@@ -231,6 +216,8 @@ class TempMainActivity : AppCompatActivity() {
             spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
             spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
             spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
+            spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
+            spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
             spannableString
         }
         infoTextView.text = infoText
@@ -254,14 +241,77 @@ class TempMainActivity : AppCompatActivity() {
             val tempSwitch = switchArray[i]
             tempSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (!buttonView.isEnabled) return@setOnCheckedChangeListener
+                val day = i+2
                 if (isChecked) {
                     database.updateIs(i+2, isChecked)
                     dayTextViewArray[i].setTextColor(Color.BLACK)
+                    setAlarmUI()
                 } else {
                     database.updateIs(i+2, isChecked)
                     dayTextViewArray[i].setTextColor(Color.BLUE)
+                    setAlarmUI()
+                }
+                setTimeText(day, isChecked)
+            }
+        }
+    }
+
+    private fun setTimeUI(timeStringArray: Array<String>, isArray: Array<Boolean>){
+        for (i in 0..4) {
+            val tempTimeTextView = timeTextViewArray[i]
+            val tempDayTextView = dayTextViewArray[i]
+            val tempSwitch = switchArray[i]
+            val tempIs = isArray[i]
+            val tempTimeString = timeStringArray[i]
+            var content =
+                    SpannableText.
+                    convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, false, 32)
+            content = SpannableText.setClockSpans(content, 3, tempTimeString.length, this)
+
+            if (tempTimeString == "오늘 공강!") {
+                tempDayTextView.setTextColor(Color.RED)
+                tempTimeTextView.text = content
+                tempSwitch.isEnabled = false
+                tempSwitch.isChecked = false
+                tempSwitch.visibility = View.INVISIBLE
+            } else {
+                if (!tempIs) {
+                    tempDayTextView.setTextColor(Color.BLUE)
+                    tempTimeTextView.text = content
+                    tempSwitch.isEnabled = true
+                    tempSwitch.isChecked = false
+                    tempSwitch.visibility = View.VISIBLE
+                } else {
+                    tempDayTextView.setTextColor(Color.BLACK)
+                    tempTimeTextView.text = content
+                    tempSwitch.isEnabled = true
+                    tempSwitch.isChecked = true
+                    tempSwitch.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun setTimeText(day: Int, checked: Boolean) {
+        val tempTimeTextView = timeTextViewArray[day-2]
+        if (!checked) {
+            val myString = "알람 OFF"
+            var content =
+                    SpannableText.
+                    convertToSpannable(myString, 3, myString.length, Color.BLACK, false, 32)
+            content = SpannableText.setClockSpans(content, 3, myString.length, this)
+            tempTimeTextView.text = content
+        } else {
+            val myString = database.getTime(day).split(",")
+            val preTime = database.getPreTime()
+            val hour = myString[0]
+            val minute = myString[1]
+            val timeString = formatTimeString(hour, minute, preTime)
+            var content =
+                    SpannableText.
+                    convertToSpannable(timeString, 3, timeString.length, Color.BLACK, false, 32)
+            content = SpannableText.setClockSpans(content, 3, timeString.length, this)
+            tempTimeTextView.text = content
         }
     }
 
@@ -488,41 +538,6 @@ class TempMainActivity : AppCompatActivity() {
             }
         }
         return returnArray
-    }
-
-    private fun setTimeUI(timeStringArray: Array<String>, isArray: Array<Boolean>){
-        for (i in 0..4) {
-            val tempTimeTextView = timeTextViewArray[i]
-            val tempDayTextView = dayTextViewArray[i]
-            val tempSwitch = switchArray[i]
-            val tempIs = isArray[i]
-            val tempTimeString = timeStringArray[i]
-            val content =
-                SpannableText.
-                convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, false, 32)
-
-            if (tempTimeString == "오늘 공강!") {
-                tempDayTextView.setTextColor(Color.RED)
-                tempTimeTextView.text = content
-                tempSwitch.isEnabled = false
-                tempSwitch.isChecked = false
-                tempSwitch.visibility = View.INVISIBLE
-            } else {
-                if (!tempIs) {
-                    tempDayTextView.setTextColor(Color.BLUE)
-                    tempTimeTextView.text = content
-                    tempSwitch.isEnabled = true
-                    tempSwitch.isChecked = false
-                    tempSwitch.visibility = View.VISIBLE
-                } else {
-                    tempDayTextView.setTextColor(Color.BLACK)
-                    tempTimeTextView.text = content
-                    tempSwitch.isEnabled = true
-                    tempSwitch.isChecked = true
-                    tempSwitch.visibility = View.VISIBLE
-                }
-            }
-        }
     }
 
     private fun getTime(day: Int): String = database.getTime(day)

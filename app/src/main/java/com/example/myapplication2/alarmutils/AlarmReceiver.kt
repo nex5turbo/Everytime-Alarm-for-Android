@@ -5,7 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.myapplication2.R
@@ -27,34 +30,12 @@ class AlarmReceiver : BroadcastReceiver() {
     private lateinit var notificationManager: NotificationManager
 
     override fun onReceive(context: Context, intent: Intent) {
-        createNextAlarm(context)
-
-        if (sCpuWakeLock != null) {
-            return
-        }
-
-        if (sWifiLock != null) {
-            return
-        }
-
-        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        sWifiLock = wifiManager.createWifiLock("wifilock")
-        sWifiLock!!.setReferenceCounted(true)
-        sWifiLock!!.acquire()
-
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-
-        sCpuWakeLock = pm.newWakeLock(
-                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or
-                        PowerManager.ACQUIRE_CAUSES_WAKEUP or
-                        PowerManager.ON_AFTER_RELEASE, "app:alarm")
-
-        sCpuWakeLock!!.acquire()
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
-            deliverNotification(context)
-        } else {
+//        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
+//            deliverNotification(context)
+//        } else {
             val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
             alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             alarmIntent.action = Intent.ACTION_MAIN
@@ -64,17 +45,7 @@ class AlarmReceiver : BroadcastReceiver() {
             pIntent.send()
 
             deliverNotification(context, alarmIntent)
-        }
-
-        if(sWifiLock != null) {
-            sWifiLock!!.release()
-            sWifiLock = null
-        }
-
-        if (sCpuWakeLock != null) {
-            sCpuWakeLock!!.release()
-            sCpuWakeLock = null
-        }
+//        }
     }
 
     private fun createNextAlarm(context: Context){
@@ -114,7 +85,6 @@ class AlarmReceiver : BroadcastReceiver() {
                         .setContentIntent(pIntent)
                         .setPriority(NotificationCompat.PRIORITY_LOW)
                         .setAutoCancel(false)
-                        .setDefaults(Notification.DEFAULT_ALL)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)

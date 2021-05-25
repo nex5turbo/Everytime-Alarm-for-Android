@@ -1,5 +1,6 @@
 package com.example.myapplication2.utils
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.Spannable
@@ -7,6 +8,9 @@ import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.text.style.TypefaceSpan
+import androidx.core.content.res.ResourcesCompat
+import com.example.myapplication2.R
 
 object SpannableText {
     fun convertToSpannable(text: String, start: Int, end: Int, color: Int, bold: Boolean, size: Int): SpannableString {
@@ -25,6 +29,12 @@ object SpannableText {
             spannableString.setSpan(StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         spannableString.setSpan(AbsoluteSizeSpan(size, true), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return spannableString
+    }
+
+    fun setClockSpans(spannableString: SpannableString, start: Int, end: Int, context: Context): SpannableString {
+        val myType = Typeface.create(ResourcesCompat.getFont(context, R.font.day), Typeface.NORMAL)
+        spannableString.setSpan(TypefaceSpan(myType), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         return spannableString
     }
 }
