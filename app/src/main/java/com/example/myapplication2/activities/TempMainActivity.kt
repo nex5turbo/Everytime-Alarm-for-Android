@@ -16,6 +16,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -178,6 +179,11 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun initAlarmUI() {
         setAlarmUI()
+        val dbStringArray = database.getAllTime()
+        val timeStringArray = convertDBArrayToTimeStringArray(dbStringArray)
+        val isArray = database.getAllIs()
+        setTimeUI(timeStringArray, isArray)
+
     }
 
     private fun setAlarmUI() {
@@ -185,10 +191,7 @@ class TempMainActivity : AppCompatActivity() {
         if (dbStringArray.isEmpty()) {
             return
         }
-
-        val timeStringArray = convertDBArrayToTimeStringArray(dbStringArray)
         val isArray = database.getAllIs()
-        setTimeUI(timeStringArray, isArray)
         val tomorrowDayOfWeek = getDayOfWeek(TOMORROW)
         val infoText = if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
             val text = "내일은 주말이에요! \n 편히 쉬세요!"
@@ -246,12 +249,13 @@ class TempMainActivity : AppCompatActivity() {
                     database.updateIs(i+2, isChecked)
                     dayTextViewArray[i].setTextColor(Color.BLACK)
                     setAlarmUI()
+                    setTimeText(day, isChecked)
                 } else {
                     database.updateIs(i+2, isChecked)
                     dayTextViewArray[i].setTextColor(Color.BLUE)
                     setAlarmUI()
+                    setTimeText(day, isChecked)
                 }
-                setTimeText(day, isChecked)
             }
         }
     }
@@ -277,9 +281,9 @@ class TempMainActivity : AppCompatActivity() {
             } else {
                 if (!tempIs) {
                     tempDayTextView.setTextColor(Color.BLUE)
-                    tempTimeTextView.text = content
                     tempSwitch.isEnabled = true
                     tempSwitch.isChecked = false
+                    setTimeText(i+2, false)
                     tempSwitch.visibility = View.VISIBLE
                 } else {
                     tempDayTextView.setTextColor(Color.BLACK)
@@ -293,8 +297,10 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun setTimeText(day: Int, checked: Boolean) {
+        Log.d("###", "${TimeData.dayStringArray[day-2]}, $checked")
         val tempTimeTextView = timeTextViewArray[day-2]
         if (!checked) {
+            Log.d("###", "false")
             val myString = "알람 OFF"
             var content =
                     SpannableText.
@@ -302,6 +308,7 @@ class TempMainActivity : AppCompatActivity() {
             content = SpannableText.setClockSpans(content, 3, myString.length, this)
             tempTimeTextView.text = content
         } else {
+            Log.d("###", "true")
             val myString = database.getTime(day).split(",")
             val preTime = database.getPreTime()
             val hour = myString[0]
