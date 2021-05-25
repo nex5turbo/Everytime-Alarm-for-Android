@@ -6,11 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.myapplication2.R
 import com.example.myapplication2.activities.AlarmReceiveActivity
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
+import java.lang.Exception
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -48,18 +50,20 @@ class AlarmReceiver : BroadcastReceiver() {
                         PowerManager.ON_AFTER_RELEASE, "app:alarm")
 
         sCpuWakeLock!!.acquire()
-
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
-            notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             deliverNotification(context)
         } else {
-            val alarmIntent = Intent("android.intent.action.sec")
-
-            alarmIntent.setClass(context, AlarmReceiveActivity::class.java)
+            val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
             alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            alarmIntent.action = Intent.ACTION_MAIN
+            alarmIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 
-            context.startActivity(alarmIntent)
+            val pIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            pIntent.send()
+
+            deliverNotification(context, alarmIntent)
         }
 
         if(sWifiLock != null) {
@@ -80,7 +84,9 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val day = getDay()
         val time = db.getTime(day)
-        val preTime = db.getPreTime()
+
+        val preferences = context.getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val preTime = preferences.getInt("preTime", 30)
 
         AlarmFunction.setAlarm(day, time, context, preTime)
     }
@@ -89,13 +95,27 @@ class AlarmReceiver : BroadcastReceiver() {
         val builder =
                 NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setContentTitle("잠시후에 1교시 수업이 시작돼요!")
+                        .setContentTitle("학교 갈 시간이에요!")
                         .setContentText("서둘러서 준비해요!")
                         .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setVibrate(longArrayOf(200,100,200))
                         .setAutoCancel(false)
                         .setDefaults(Notification.DEFAULT_ALL)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
+    private fun deliverNotification(context: Context, intent:Intent) {
+        val pIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, PendingIntent.FLAG_NO_CREATE)
+        val builder =
+                NotificationCompat.Builder(context, PRIMARY_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle("학교 갈 시간이에요!")
+                        .setContentText("서둘러서 준비해요!")
+                        .setContentIntent(pIntent)
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setAutoCancel(false)
+                        .setDefaults(Notification.DEFAULT_ALL)
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
+    }
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)
 }

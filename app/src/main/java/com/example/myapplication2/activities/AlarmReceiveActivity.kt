@@ -3,39 +3,36 @@ package com.example.myapplication2.activities
 import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication2.R
+import com.example.myapplication2.utils.NetworkStatus
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import java.net.URI
 
 class AlarmReceiveActivity : AppCompatActivity() {
-
     private lateinit var adView: AdView
     private lateinit var adRequest: AdRequest
 
     private lateinit var stopButton: Button
-    private var mp: MediaPlayer? = MediaPlayer()
+    private var alarmPlayer: MediaPlayer? = MediaPlayer()
+    private lateinit var vibrator:Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_receive)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        MobileAds.initialize(this){}
-        adView = findViewById(R.id.alarmAdView)
-        adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-        stopButton = findViewById(R.id.stopButton)
+        initAdvertisement()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -52,13 +49,39 @@ class AlarmReceiveActivity : AppCompatActivity() {
 
         initRingtone()
         initListener()
+        startRingtone()
+        initVibrator()
+    }
+
+    private fun initAdvertisement() {
+        if (NetworkStatus.getConnectivityStatus(this) != NetworkStatus.TYPE_NOT_CONNECTED) {
+            MobileAds.initialize(this){}
+            adView = findViewById(R.id.alarmAdView)
+            adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+            stopButton = findViewById(R.id.stopButton)
+        }
+    }
+
+    private fun initVibrator() {
+        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        val pattern = longArrayOf(100,200,300,400,300,200)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val amplitude = intArrayOf(20,20,20,20,20,20)
+            val waveform = VibrationEffect.createWaveform(pattern, amplitude, 0)
+            vibrator.vibrate(waveform)
+        } else {
+            vibrator.vibrate(pattern, 0)
+        }
     }
 
     private fun initListener() {
         stopButton.setOnClickListener {
-            if (mp == null) return@setOnClickListener
-            if (mp!!.isPlaying) {
-                mp!!.stop()
+            if (alarmPlayer == null) return@setOnClickListener
+            if (alarmPlayer!!.isPlaying) {
+                alarmPlayer!!.stop()
+                vibrator.cancel()
             }
         }
     }
@@ -71,16 +94,24 @@ class AlarmReceiveActivity : AppCompatActivity() {
         } else {
             Uri.parse(musicPath)
         }
-        mp!!.setDataSource(this, mediaURI)
-        mp!!.isLooping = true
-        mp!!.setAudioStreamType(AudioManager.STREAM_ALARM)
-        mp!!.prepare()
-        mp!!.start()
+        alarmPlayer!!.setDataSource(this, mediaURI)
+        alarmPlayer!!.isLooping = true
+        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        alarmPlayer!!.prepare()
+    }
+
+    private fun startRingtone() {
+        alarmPlayer!!.start()
+    }
+
+    override fun onBackPressed() {
+        if (alarmPlayer!!.isPlaying) return
+        super.onBackPressed()
     }
 
     override fun onDestroy() {
-        if (mp != null && mp!!.isPlaying) {
-            mp!!.stop()
+        if (alarmPlayer != null && alarmPlayer!!.isPlaying) {
+            alarmPlayer!!.stop()
         }
         super.onDestroy()
     }

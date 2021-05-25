@@ -5,11 +5,12 @@ import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 
-private const val TYPE_WIFI = 1
-private const val TYPE_MOBILE = 2
-private const val TYPE_NOT_CONNECTED = 3
+
 
 object NetworkStatus {
+    const val TYPE_WIFI = 1
+    const val TYPE_MOBILE = 2
+    const val TYPE_NOT_CONNECTED = 3
     fun getConnectivityStatus(context: Context): Int { //해당 context의 서비스를 사용하기위해서 context객체를 받는다.
         val manager: ConnectivityManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo: NetworkInfo? = manager.getActiveNetworkInfo()

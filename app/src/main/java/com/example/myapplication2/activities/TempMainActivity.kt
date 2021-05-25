@@ -16,7 +16,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -28,6 +27,7 @@ import com.example.myapplication2.alarmutils.AlarmFunction
 import com.example.myapplication2.alarmutils.AlarmReceiver
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
+import com.example.myapplication2.utils.NetworkStatus
 import com.example.myapplication2.utils.RealPath
 import com.example.myapplication2.utils.SpannableText
 import com.example.myapplication2.utils.TimeData
@@ -40,15 +40,20 @@ import org.opencv.core.Mat
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.jar.Manifest
 import kotlin.collections.ArrayList
 
-const val TIME_TABLE_REQUEST_CODE = 200
-const val SETTING_REQUEST_CODE = 100
-const val TOMORROW = 1
-const val TODAY = 0
-
 class TempMainActivity : AppCompatActivity() {
+    companion object {
+        const val TIME_TABLE_REQUEST_CODE = 200
+        const val SETTING_REQUEST_CODE = 100
+        const val TOMORROW = 1
+        const val TODAY = 0
+
+        init {
+            System.loadLibrary("opencv_java4")
+            System.loadLibrary("native-lib")
+        }
+    }
     private lateinit var adView:AdView
     private lateinit var adRequest: AdRequest
 
@@ -100,17 +105,22 @@ class TempMainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_temp_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        MobileAds.initialize(this){}
-        adView = findViewById(R.id.adView)
-        adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-
+        initAdvertisement()
         initPreferences()
         initWidgets()
         initListener()
         initDatabase()
         initAlarmUI()
         initTest()
+    }
+
+    private fun initAdvertisement() {
+        if (NetworkStatus.getConnectivityStatus(this) != NetworkStatus.TYPE_NOT_CONNECTED) {
+            MobileAds.initialize(this){}
+            adView = findViewById(R.id.adView)
+            adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+        }
     }
 
     private fun initPreferences() {
@@ -124,21 +134,33 @@ class TempMainActivity : AppCompatActivity() {
             editor.putString("musicPath", "")
             editor.apply()
         }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-//                    || checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//                    Toast.makeText(this, "외부저장소를 사용하기 위해 필요", Toast.LENGTH_SHORT).show()
-//                }
-//                requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 2)
-//            } else {
-//                Toast.makeText(this, "권한 승인 됨", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+        requestPermissions()
         this.preTime = preferences.getInt("preTime", 30)
     }
 
+    private fun requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(this, "외부저장소를 사용하기 위해 필요", Toast.LENGTH_SHORT).show()
+                }
+                requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 2)
+            } else {
+                Toast.makeText(this, "권한 승인 됨", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun initTest() {
+        val calendar1 = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        val formatted1 = SimpleDateFormat("HH,mm").format(calendar1.timeInMillis).split(",")
+        val hour1 = formatted1[0].toInt()
+        val minute1 = formatted1[1].toInt() + 1
+        val testTime1 = "$hour1,$minute1"
+        val day1 = calendar1.get(Calendar.DAY_OF_WEEK)
+        AlarmFunction.setAlarm(day1, testTime1, this, 0)
+
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
@@ -162,12 +184,13 @@ class TempMainActivity : AppCompatActivity() {
             )
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
+            notificationChannel.enableVibration(false)
             notificationChannel.description = "나즈 채널"
             notificationManager.createNotificationChannel(
                 notificationChannel)
         }
     }
+
     private fun initAlarmUI() {
         setAlarmUI()
     }
@@ -459,7 +482,6 @@ class TempMainActivity : AppCompatActivity() {
                 returnArray[i] = "오늘 공강!"
             } else {
                 val tempSplit = dbString.split(",")
-                Log.d("###", tempSplit.toString())
                 val hour = tempSplit[0]
                 val minute = tempSplit[1]
                 returnArray[i] = formatTimeString(hour, minute, this.preTime)
@@ -545,10 +567,5 @@ class TempMainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    companion object {
-        init {
-            System.loadLibrary("opencv_java4")
-            System.loadLibrary("native-lib")
-        }
-    }
+
 }

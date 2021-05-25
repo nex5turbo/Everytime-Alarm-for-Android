@@ -168,7 +168,7 @@ object AlarmFunction {
 
     fun setAlarm(day: Int, time: String, mContext: Context, preTime: Int): Boolean{
         if (time == "no") return false
-//        if (day == 1 || day == 7) return false
+        if (day == 1 || day == 7) return false
         Log.d("###", "set 1 alarm")
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
