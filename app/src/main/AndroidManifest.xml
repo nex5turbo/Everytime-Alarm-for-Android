@@ -41,7 +41,6 @@
         <activity
             android:name=".activities.AlarmReceiveActivity"
             android:launchMode="singleTask"/>
-        <activity android:name=".activities.MainActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

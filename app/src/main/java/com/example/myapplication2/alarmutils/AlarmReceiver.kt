@@ -25,26 +25,29 @@ class AlarmReceiver : BroadcastReceiver() {
         const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     }
 
-    private var sCpuWakeLock: PowerManager.WakeLock? = null
-    private var sWifiLock: WifiManager.WifiLock? = null
     private lateinit var notificationManager: NotificationManager
 
     override fun onReceive(context: Context, intent: Intent) {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val isScreenOn = pm.isInteractive
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
+        Log.d("###", "${km.isKeyguardLocked}, ${km.isKeyguardSecure}, $isScreenOn")
+        val isLocked = if (km.isKeyguardSecure) {km.isKeyguardLocked} else {true}
+        val wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "my:app")
+        wakeLock.acquire()
+        if (!isLocked || isScreenOn) { //잠금 안걸린 상태거나 화면 켜진 상태
             deliverNotification(context)
         } else {
             val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
             alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             alarmIntent.action = Intent.ACTION_MAIN
             alarmIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-
             val pIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
             pIntent.send()
 
             deliverNotification(context, alarmIntent)
+            wakeLock.release()
         }
     }
 

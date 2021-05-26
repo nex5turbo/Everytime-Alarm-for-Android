@@ -13,6 +13,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
+import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -186,6 +187,7 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun checkSdkVersion() {
+        Log.d("###", "SDK Version = ${Build.VERSION.SDK_INT}")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             showVersionDialog()
         }
@@ -207,7 +209,7 @@ class TempMainActivity : AppCompatActivity() {
             createNotificationChannel()
             val editor = preferences.edit()
             editor.putBoolean("isFirst", false)
-            editor.putInt("preTime", 30)
+            editor.putInt("preTime", 90)
             editor.putString("musicPath", "")
             editor.apply()
         }

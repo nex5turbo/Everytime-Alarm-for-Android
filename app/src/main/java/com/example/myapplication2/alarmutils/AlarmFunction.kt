@@ -255,11 +255,11 @@ object AlarmFunction {
 
             alarmManager.setExact(   // 5
                     AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
+                    alarmCalendar.timeInMillis,
                     pendingIntent)
 
             val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val formatted = formatter.format(calendar.timeInMillis)
+            val formatted = formatter.format(alarmCalendar.timeInMillis)
             Log.d("###", "$formatted")
         } catch (e:Exception) {
             Log.d("###", e.toString())

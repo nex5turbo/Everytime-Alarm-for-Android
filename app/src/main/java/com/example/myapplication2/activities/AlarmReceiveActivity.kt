@@ -2,6 +2,7 @@ package com.example.myapplication2.activities
 
 import android.app.Activity
 import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.*
@@ -28,11 +29,6 @@ class AlarmReceiveActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm_receive)
-
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-        initAdvertisement()
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             setTurnScreenOn(true)
@@ -45,6 +41,9 @@ class AlarmReceiveActivity : AppCompatActivity() {
                     or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
         }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        initAdvertisement()
         initRingtone()
         initListener()
         startRingtone()
@@ -79,6 +78,9 @@ class AlarmReceiveActivity : AppCompatActivity() {
             if (alarmPlayer!!.isPlaying) {
                 alarmPlayer!!.stop()
                 vibrator.cancel()
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancelAll()
+                finish()
             }
         }
     }
