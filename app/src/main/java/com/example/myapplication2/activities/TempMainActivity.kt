@@ -626,8 +626,6 @@ class TempMainActivity : AppCompatActivity() {
         val minute = timeSplit[1].toInt()
 
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-        calendar.set(Calendar.HOUR_OF_DAY, hour)
-        calendar.set(Calendar.MINUTE, minute)
 
         val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
         alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
