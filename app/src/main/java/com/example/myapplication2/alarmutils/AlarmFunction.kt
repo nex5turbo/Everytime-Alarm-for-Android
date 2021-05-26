@@ -280,10 +280,9 @@ object AlarmFunction {
         return true
     }
 
-    fun setAlarms(mon: String, tue: String, wed: String, thu: String, fri: String, mContext: Context, preTime: Int): Boolean{
+    fun setAlarms(dayArray: Array<String>, mContext: Context, preTime: Int): Boolean{
         Log.d("###", "set alarms")
         try {
-            val dayArray = arrayOf(mon, tue, wed, thu, fri)
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             for (i in 0..4) {
                 if (dayArray[i] == "no") {

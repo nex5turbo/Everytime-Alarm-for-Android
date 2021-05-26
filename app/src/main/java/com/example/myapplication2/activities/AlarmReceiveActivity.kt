@@ -93,7 +93,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
         alarmPlayer!!.setDataSource(this, mediaURI)
         alarmPlayer!!.isLooping = true
-        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
+        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
         alarmPlayer!!.prepare()
     }
 

@@ -1,9 +1,6 @@
 package com.example.myapplication2.activities
 
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -16,12 +13,11 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
-import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.myapplication2.OpenCvModule
 import com.example.myapplication2.R
 import com.example.myapplication2.alarmutils.AlarmFunction
@@ -39,12 +35,13 @@ import com.suke.widget.SwitchButton
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 import java.io.InputStream
-import java.text.SimpleDateFormat
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
 class TempMainActivity : AppCompatActivity() {
     companion object {
+//        const val DAY_SETTING_REQUEST_CODE = 300
         const val TIME_TABLE_REQUEST_CODE = 200
         const val SETTING_REQUEST_CODE = 100
         const val TOMORROW = 1
@@ -55,6 +52,7 @@ class TempMainActivity : AppCompatActivity() {
             System.loadLibrary("native-lib")
         }
     }
+
     private lateinit var adView:AdView
     private lateinit var adRequest: AdRequest
 
@@ -90,6 +88,13 @@ class TempMainActivity : AppCompatActivity() {
     private lateinit var fridaySwitch: SwitchButton
     private lateinit var switchArray: Array<SwitchButton>
 
+    private lateinit var mondayContainer: ConstraintLayout
+    private lateinit var tuesdayContainer: ConstraintLayout
+    private lateinit var wednesdayContainer: ConstraintLayout
+    private lateinit var thursdayContainer: ConstraintLayout
+    private lateinit var fridayContainer: ConstraintLayout
+    private lateinit var containerArray: Array<ConstraintLayout>
+
     private lateinit var testButton: Button
 
     private lateinit var dbHelper: DBHelper
@@ -99,20 +104,91 @@ class TempMainActivity : AppCompatActivity() {
     private var alarmArray:ArrayList<ArrayList<Int>>? = null
     private val timeArray = TimeData.timeArray
     private var resultPath = ""
-    private var preTime = 30
+    private var preTime = 0
+
+    private fun initWidgets() {
+        settingButton = findViewById(R.id.settingButton)
+        timeTableButton = findViewById(R.id.timetableButton)
+
+        weatherTextView = findViewById(R.id.weatherTextView)
+        weatherImageView = findViewById(R.id.weatherImageView)
+
+        infoTextView = findViewById(R.id.infoTextView)
+
+        mondayTimeTextView = findViewById(R.id.mondayTimeTextView)
+        tuesdayTimeTextView = findViewById(R.id.tuesdayTimeTextView)
+        wednesdayTimeTextView = findViewById(R.id.wednesdayTimeTextView)
+        thursdayTimeTextView = findViewById(R.id.thursdayTimeTextView)
+        fridayTimeTextView = findViewById(R.id.fridayTimeTextView)
+        timeTextViewArray = arrayOf(
+                mondayTimeTextView,
+                tuesdayTimeTextView,
+                wednesdayTimeTextView,
+                thursdayTimeTextView,
+                fridayTimeTextView)
+
+        dayMonTextView = findViewById(R.id.dayMonTextView)
+        dayTueTextView = findViewById(R.id.dayTueTextView)
+        dayWedTextView = findViewById(R.id.dayWedTextView)
+        dayThuTextView = findViewById(R.id.dayThuTextView)
+        dayFriTextView = findViewById(R.id.dayFriTextView)
+        dayTextViewArray = arrayOf(
+                dayMonTextView,
+                dayTueTextView,
+                dayWedTextView,
+                dayThuTextView,
+                dayFriTextView)
+
+        mondaySwitch = findViewById(R.id.mondaySwitch)
+        tuesdaySwitch = findViewById(R.id.tuesdaySwitch)
+        wednesdaySwitch = findViewById(R.id.wednesdaySwitch)
+        thursdaySwitch = findViewById(R.id.thursdaySwitch)
+        fridaySwitch = findViewById(R.id.fridaySwitch)
+        switchArray = arrayOf(
+                mondaySwitch,
+                tuesdaySwitch,
+                wednesdaySwitch,
+                thursdaySwitch,
+                fridaySwitch)
+        mondayContainer = findViewById(R.id.mondayLayout)
+        tuesdayContainer = findViewById(R.id.tuesdayLayout)
+        wednesdayContainer = findViewById(R.id.wednesdayLayout)
+        thursdayContainer = findViewById(R.id.thursdayLayout)
+        fridayContainer = findViewById(R.id.fridayLayout)
+        containerArray = arrayOf(mondayContainer, tuesdayContainer, wednesdayContainer, thursdayContainer, fridayContainer)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_temp_main)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        checkSdkVersion()
         initAdvertisement()
         initPreferences()
         initWidgets()
+        initTitleAnimation()
         initListener()
         initDatabase()
         initAlarmUI()
         initTest()
+    }
+
+    private fun initTitleAnimation() {
+        val animator = AlphaAnimation(0.3f, 1.0f)
+        val titleTextView = findViewById<TextView>(R.id.titleTextView)
+
+        animator.duration = 5000
+        animator.startOffset = 100
+        animator.repeatMode = Animation.REVERSE
+        animator.repeatCount = Animation.INFINITE
+        titleTextView.startAnimation(animator)
+    }
+
+    private fun checkSdkVersion() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            showVersionDialog()
+        }
     }
 
     private fun initAdvertisement() {
@@ -136,21 +212,7 @@ class TempMainActivity : AppCompatActivity() {
             editor.apply()
         }
         requestPermissions()
-        this.preTime = preferences.getInt("preTime", 30)
-    }
-
-    private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    Toast.makeText(this, "외부저장소를 사용하기 위해 필요", Toast.LENGTH_SHORT).show()
-                }
-                requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 2)
-            } else {
-                Toast.makeText(this, "권한 승인 됨", Toast.LENGTH_SHORT).show()
-            }
-        }
+        setPreTime()
     }
 
     private fun initTest() {
@@ -160,70 +222,15 @@ class TempMainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val notificationChannel = NotificationChannel(
-                AlarmReceiver.PRIMARY_CHANNEL_ID,
-                "나즈 알람",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(false)
-            notificationChannel.description = "나즈 채널"
-            notificationManager.createNotificationChannel(
-                notificationChannel)
-        }
-    }
-
     private fun initAlarmUI() {
-        setAlarmUI()
-        val dbStringArray = database.getAllTime()
-        val timeStringArray = convertDBArrayToTimeStringArray(dbStringArray)
-        val isArray = database.getAllIs()
-        setTimeUI(timeStringArray, isArray)
-
-    }
-
-    private fun setAlarmUI() {
         val dbStringArray = database.getAllTime()
         if (dbStringArray.isEmpty()) {
             return
         }
+        setInfoText()
+        val timeStringArray = convertDBArrayToTimeStringArray(dbStringArray)
         val isArray = database.getAllIs()
-        val tomorrowDayOfWeek = getDayOfWeek(TOMORROW)
-        val infoText = if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
-            val text = "내일은 주말이에요! \n 편히 쉬세요!"
-            SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
-        } else if (getTime(tomorrowDayOfWeek) == "no") {
-            val text = "내일은 공강이에요! \n 편히 쉬세요!"
-            SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
-        } else if (!isArray[tomorrowDayOfWeek-2]) {
-            SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
-        } else {
-            val tomorrowTime = getTime(tomorrowDayOfWeek).split(",")
-            val hour = tomorrowTime[0]
-            val minute = tomorrowTime[1]
-            val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
-            val tomorrowClassTime = formatTimeString(hour, minute)
-            val text = "내일(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
-                    "${tomorrowAlarmTime}에 깨워드릴게요!"
-            var spannableString = SpannableString(text)
-            val dayStart = text.indexOf("(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]})")
-            val dayEnd = dayStart+3
-            val classStart = text.indexOf(tomorrowClassTime)
-            val classEnd = classStart+tomorrowClassTime.length
-            val alarmStart = text.indexOf(tomorrowAlarmTime)
-            val alarmEnd = alarmStart+tomorrowAlarmTime.length
-            spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
-            spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
-            spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
-            spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
-            spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
-            spannableString
-        }
-        infoTextView.text = infoText
+        setTimeUI(timeStringArray, isArray)
     }
 
     private fun initDatabase() {
@@ -242,22 +249,102 @@ class TempMainActivity : AppCompatActivity() {
 
         for (i in 0..4) {
             val tempSwitch = switchArray[i]
+            val tempContainer = containerArray[i]
+            val day = i+2
+
             tempSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
                 if (!buttonView.isEnabled) return@setOnCheckedChangeListener
-                val day = i+2
                 if (isChecked) {
                     database.updateIs(i+2, isChecked)
                     dayTextViewArray[i].setTextColor(Color.BLACK)
-                    setAlarmUI()
+                    val time = database.getTime(day)
+                    AlarmFunction.setAlarm(day,time, this, this.preTime)
+                    setInfoText()
                     setTimeText(day, isChecked)
                 } else {
                     database.updateIs(i+2, isChecked)
-                    dayTextViewArray[i].setTextColor(Color.BLUE)
-                    setAlarmUI()
+                    dayTextViewArray[i].setTextColor(Color.GRAY)
+                    AlarmFunction.cancelAlarm(day, this)
+                    setInfoText()
                     setTimeText(day, isChecked)
                 }
             }
+
+            tempContainer.setOnClickListener {
+                Toast.makeText(this, "${TimeData.dayStringArray[i]}입니다.", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    private fun setInfoText() {
+        val isArray = database.getAllIs()
+        val tomorrowDayOfWeek = getDayOfWeek(TOMORROW)
+        val todayDayOfWeek = getDayOfWeek(TODAY)
+        var text = ""
+        val infoText: SpannableString
+        if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
+            text = "내일은 주말이에요! \n 편히 쉬세요!"
+            infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+        } else {
+            if (isOverTodayAlarm(todayDayOfWeek)) { //내일의 정보를 알려줘야함
+                if (getTime(tomorrowDayOfWeek) == "no") {
+                    text = "내일은 공강이에요! \n 편히 쉬세요!"
+                    infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+                } else if (!isArray[tomorrowDayOfWeek-2]) {
+                    infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
+                } else {
+                    val tomorrowTime = getTime(tomorrowDayOfWeek).split(",")
+                    val hour = tomorrowTime[0]
+                    val minute = tomorrowTime[1]
+                    val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
+                    val tomorrowClassTime = formatTimeString(hour, minute)
+                    text = "내일(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
+                            "${tomorrowAlarmTime}에 깨워드릴게요!"
+                    var spannableString = SpannableString(text)
+                    val dayStart = text.indexOf("(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]})")
+                    val dayEnd = dayStart+3
+                    val classStart = text.indexOf(tomorrowClassTime)
+                    val classEnd = classStart+tomorrowClassTime.length
+                    val alarmStart = text.indexOf(tomorrowAlarmTime)
+                    val alarmEnd = alarmStart+tomorrowAlarmTime.length
+                    spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
+                    spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
+                    infoText = spannableString
+                }
+            } else { //오늘의 정보를 알려줘야함
+                if (getTime(todayDayOfWeek) == "no") {
+                    text = "내일은 공강이에요! \n 편히 쉬세요!"
+                    infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+                } else if (!isArray[todayDayOfWeek-2]) {
+                    infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
+                } else {
+                    val tomorrowTime = getTime(todayDayOfWeek).split(",")
+                    val hour = tomorrowTime[0]
+                    val minute = tomorrowTime[1]
+                    val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
+                    val tomorrowClassTime = formatTimeString(hour, minute)
+                    text = "내일(${TimeData.dayStringArray[todayDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
+                            "${tomorrowAlarmTime}에 깨워드릴게요!"
+                    var spannableString = SpannableString(text)
+                    val dayStart = text.indexOf("(${TimeData.dayStringArray[todayDayOfWeek-2][0]})")
+                    val dayEnd = dayStart+3
+                    val classStart = text.indexOf(tomorrowClassTime)
+                    val classEnd = classStart+tomorrowClassTime.length
+                    val alarmStart = text.indexOf(tomorrowAlarmTime)
+                    val alarmEnd = alarmStart+tomorrowAlarmTime.length
+                    spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
+                    spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
+                    spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
+                    infoText = spannableString
+                }
+            }
+        }
+        infoTextView.text = infoText
     }
 
     private fun setTimeUI(timeStringArray: Array<String>, isArray: Array<Boolean>){
@@ -267,12 +354,12 @@ class TempMainActivity : AppCompatActivity() {
             val tempSwitch = switchArray[i]
             val tempIs = isArray[i]
             val tempTimeString = timeStringArray[i]
-            var content =
-                    SpannableText.
-                    convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, false, 32)
-            content = SpannableText.setClockSpans(content, 3, tempTimeString.length, this)
 
             if (tempTimeString == "오늘 공강!") {
+                var content =
+                        SpannableText.
+                        convertToSpannable(tempTimeString, 3, tempTimeString.length, Color.BLACK, false, 32)
+                content = SpannableText.setClockSpans(content, 3, tempTimeString.length, this)
                 tempDayTextView.setTextColor(Color.RED)
                 tempTimeTextView.text = content
                 tempSwitch.isEnabled = false
@@ -280,16 +367,16 @@ class TempMainActivity : AppCompatActivity() {
                 tempSwitch.visibility = View.INVISIBLE
             } else {
                 if (!tempIs) {
-                    tempDayTextView.setTextColor(Color.BLUE)
+                    tempDayTextView.setTextColor(Color.GRAY)
                     tempSwitch.isEnabled = true
                     tempSwitch.isChecked = false
                     setTimeText(i+2, false)
                     tempSwitch.visibility = View.VISIBLE
                 } else {
                     tempDayTextView.setTextColor(Color.BLACK)
-                    tempTimeTextView.text = content
                     tempSwitch.isEnabled = true
                     tempSwitch.isChecked = true
+                    setTimeText(i+2, true)
                     tempSwitch.visibility = View.VISIBLE
                 }
             }
@@ -297,180 +384,24 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun setTimeText(day: Int, checked: Boolean) {
-        Log.d("###", "${TimeData.dayStringArray[day-2]}, $checked")
         val tempTimeTextView = timeTextViewArray[day-2]
         if (!checked) {
-            Log.d("###", "false")
             val myString = "알람 OFF"
             var content =
                     SpannableText.
-                    convertToSpannable(myString, 3, myString.length, Color.BLACK, false, 32)
+                    convertToSpannable(myString, 3, myString.length, Color.GRAY, false, 32)
             content = SpannableText.setClockSpans(content, 3, myString.length, this)
             tempTimeTextView.text = content
         } else {
-            Log.d("###", "true")
             val myString = database.getTime(day).split(",")
-            val preTime = database.getPreTime()
             val hour = myString[0]
             val minute = myString[1]
-            val timeString = formatTimeString(hour, minute, preTime)
+            val timeString = formatTimeString(hour, minute, this.preTime)
             var content =
                     SpannableText.
                     convertToSpannable(timeString, 3, timeString.length, Color.BLACK, false, 32)
             content = SpannableText.setClockSpans(content, 3, timeString.length, this)
             tempTimeTextView.text = content
-        }
-    }
-
-    private fun initWidgets() {
-        settingButton = findViewById(R.id.settingButton)
-        timeTableButton = findViewById(R.id.timetableButton)
-
-        weatherTextView = findViewById(R.id.weatherTextView)
-        weatherImageView = findViewById(R.id.weatherImageView)
-
-        infoTextView = findViewById(R.id.infoTextView)
-
-        mondayTimeTextView = findViewById(R.id.mondayTimeTextView)
-        tuesdayTimeTextView = findViewById(R.id.tuesdayTimeTextView)
-        wednesdayTimeTextView = findViewById(R.id.wednesdayTimeTextView)
-        thursdayTimeTextView = findViewById(R.id.thursdayTimeTextView)
-        fridayTimeTextView = findViewById(R.id.fridayTimeTextView)
-        timeTextViewArray = arrayOf(
-            mondayTimeTextView,
-            tuesdayTimeTextView,
-            wednesdayTimeTextView,
-            thursdayTimeTextView,
-            fridayTimeTextView)
-
-        dayMonTextView = findViewById(R.id.dayMonTextView)
-        dayTueTextView = findViewById(R.id.dayTueTextView)
-        dayWedTextView = findViewById(R.id.dayWedTextView)
-        dayThuTextView = findViewById(R.id.dayThuTextView)
-        dayFriTextView = findViewById(R.id.dayFriTextView)
-        dayTextViewArray = arrayOf(
-            dayMonTextView,
-            dayTueTextView,
-            dayWedTextView,
-            dayThuTextView,
-            dayFriTextView)
-
-        mondaySwitch = findViewById(R.id.mondaySwitch)
-        tuesdaySwitch = findViewById(R.id.tuesdaySwitch)
-        wednesdaySwitch = findViewById(R.id.wednesdaySwitch)
-        thursdaySwitch = findViewById(R.id.thursdaySwitch)
-        fridaySwitch = findViewById(R.id.fridaySwitch)
-        switchArray = arrayOf(
-            mondaySwitch,
-            tuesdaySwitch,
-            wednesdaySwitch,
-            thursdaySwitch,
-            fridaySwitch)
-    }
-
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-        startActivityForResult(intent, TIME_TABLE_REQUEST_CODE)
-    }
-
-    private fun openAudioGallery() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "audio/*")
-        startActivityForResult(intent, SETTING_REQUEST_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == TIME_TABLE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.data != null){
-            val inputStream: InputStream? =
-                contentResolver.openInputStream(data.data!!)
-            val realPath = RealPath()
-            val uri = data.data
-            resultPath = realPath.getRealPath(this, uri!!)!!
-
-            val myBit: Bitmap = BitmapFactory.decodeStream(inputStream)
-            convertTimeTable(myBit)
-
-            if(alarmArray != null){
-                val timeStringArray = arrayToTimeStringArray()
-                val dbStringArray = arrayToDbStringArray()
-                database.deletePath()
-                database.insertPath(resultPath)
-                setDialog(timeStringArray, dbStringArray, false)
-            } else {
-                val emptyArray: Array<String> = arrayOf()
-                setDialog(emptyArray, emptyArray,true)
-            }
-        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            val realPath = RealPath()
-            val uri = data.data ?: return
-            val audioPath = realPath.getRealPath(this, uri)
-            if (audioPath == null) {
-                Toast.makeText(this, "wrong Path", Toast.LENGTH_SHORT).show()
-            } else {
-                val preference = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
-                val editor = preference.edit()
-                editor.putString("musicPath", audioPath)
-                editor.apply()
-            }
-        }
-    }
-
-    private fun convertTimeTable(myBit: Bitmap){
-        matInput = Mat()
-        matResult = Mat()
-        Utils.bitmapToMat(myBit, matInput)
-
-        matResult.release()
-        matResult = Mat(matInput.rows(), matInput.cols(), matInput.type())
-        val resultArray = OpenCvModule().ConvertRGBtoGray(matInput.nativeObjAddr, matResult.nativeObjAddr)
-        alarmArray = if (resultArray == null) {
-            null
-        } else {
-            AlarmFunction.splitArr(resultArray)
-        }
-    }
-
-    private fun arrayToTimeStringArray(): Array<String>{
-        if (alarmArray == null) {
-            return arrayOf()
-        } else {
-            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
-            val timeStringArray = Array(5){""}
-
-            for (i in 0..4) {
-                if (eachDay[i] == -1) {
-                    timeStringArray[i] = "오늘 공강!"
-                } else {
-                    val classTime = eachDay[i]
-                    val hour = timeArray[classTime][0].toString()
-                    val minute = if(timeArray[classTime][1] == 0){"00"}else{"30"}
-                    timeStringArray[i] = formatTimeString(hour, minute)
-                }
-            }
-            return timeStringArray
-        }
-    }
-
-    private fun arrayToDbStringArray(): Array<String>{
-        if (alarmArray == null) {
-            return arrayOf()
-        } else {
-            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
-            val timeStringArray = Array(5){""}
-
-            for (i in 0..4) {
-                if (eachDay[i] == -1) {
-                    timeStringArray[i] = "no"
-                } else {
-                    val classTime = eachDay[i]
-                    val hour = timeArray[classTime][0].toString()
-                    val minute = if(timeArray[classTime][1] == 0){"00"}else{"30"}
-                    timeStringArray[i] =  formatDbString(hour, minute)
-                }
-            }
-            return timeStringArray
         }
     }
 
@@ -506,11 +437,11 @@ class TempMainActivity : AppCompatActivity() {
                 .setTitle("시간표 분석 완료!")
                 .setNegativeButton("설정하기") { _, _ ->
                     Toast.makeText(this, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
-                    AlarmFunction.setAlarms(dbMon, dbTue, dbWed, dbThu, dbFri, this, this.preTime).toString() //성공여부에 따라 다이얼로그 띄우기
+                    AlarmFunction.setAlarms(dbStringArray, this, this.preTime).toString() //성공여부에 따라 다이얼로그 띄우기
                     dbInsert(dbStringArray)
                     val isArray = arrayOf(dbMon != "no", dbTue != "no", dbWed != "no", dbThu != "no", dbFri != "no")
                     setTimeUI(timeStringArray, isArray)
-                    setAlarmUI()
+                    setInfoText()
                 }
                 .setPositiveButton("다시하기") { _, _ ->
                     openGallery()
@@ -521,6 +452,67 @@ class TempMainActivity : AppCompatActivity() {
                 }
                 .setCancelable(false)
                 .show()
+        }
+    }
+
+    private fun convertTimeTable(myBit: Bitmap){
+        matInput = Mat()
+        matResult = Mat()
+        Utils.bitmapToMat(myBit, matInput)
+
+        matResult.release()
+        matResult = Mat(matInput.rows(), matInput.cols(), matInput.type())
+        val resultArray = OpenCvModule().ConvertRGBtoGray(matInput.nativeObjAddr, matResult.nativeObjAddr)
+        alarmArray = if (resultArray == null) {
+            null
+        } else {
+            AlarmFunction.splitArr(resultArray)
+        }
+    }
+
+    private fun arrayToTimeStringArray(): Array<String>{
+        if (alarmArray == null) {
+            return arrayOf()
+        } else {
+            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
+            val timeStringArray = Array(5){""}
+
+            for (i in 0..4) {
+                if (eachDay[i] == -1) {
+                    timeStringArray[i] = "오늘 공강!"
+                } else {
+                    val classTime = eachDay[i]
+                    val hour = timeArray[classTime][0].toString()
+                    val minute = if(timeArray[classTime][1].toString().length == 1) {
+                        "0${timeArray[classTime][1]}"
+                    } else{"${timeArray[classTime][0]}"}
+                    timeStringArray[i] = formatTimeString(hour, minute)
+                }
+            }
+            return timeStringArray
+        }
+    }
+
+    private fun arrayToDbStringArray(): Array<String>{
+        if (alarmArray == null) {
+            return arrayOf()
+        } else {
+            val eachDay = AlarmFunction.getFirstEachDay(alarmArray!!)
+            val timeStringArray = Array(5){""}
+
+            for (i in 0..4) {
+                if (eachDay[i] == -1) {
+                    timeStringArray[i] = "no"
+                } else {
+                    val classTime = eachDay[i]
+                    val hour = timeArray[classTime][0].toString()
+                    val minute = if(timeArray[classTime][1].toString().length == 1) {
+                        "0${timeArray[classTime][1]}"
+                    } else{"${timeArray[classTime][0]}"}
+                    timeStringArray[i] =  formatDbString(hour, minute)
+                }
+            }
+            return timeStringArray
         }
     }
 
@@ -577,6 +569,116 @@ class TempMainActivity : AppCompatActivity() {
             return "오후 $newHour:$returnMinute"
         }
         return "오전 $hour:$returnMinute"
+    }
+
+    private fun setPreTime() {
+        val preferences = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        this.preTime = preferences.getInt("preTime", 30)
+    }
+
+    private fun requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(this, "외부저장소를 사용하기 위해 필요", Toast.LENGTH_SHORT).show()
+                }
+                requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 2)
+            } else {
+                Toast.makeText(this, "권한 승인 됨", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationChannel = NotificationChannel(
+                    AlarmReceiver.PRIMARY_CHANNEL_ID,
+                    "나즈 알람",
+                    NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(false)
+            notificationChannel.description = "나즈 채널"
+            notificationManager.createNotificationChannel(
+                    notificationChannel)
+        }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+        startActivityForResult(intent, TIME_TABLE_REQUEST_CODE)
+    }
+
+    private fun openAudioGallery() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "audio/*")
+        startActivityForResult(intent, SETTING_REQUEST_CODE)
+    }
+
+    private fun isOverTodayAlarm(day: Int): Boolean {
+        val time = getTime(day)
+        val timeSplit = time.split(",")
+        val hour = timeSplit[0].toInt()
+        val minute = timeSplit[1].toInt()
+
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        calendar.set(Calendar.HOUR_OF_DAY, hour)
+        calendar.set(Calendar.MINUTE, minute)
+
+        val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
+        alarmCalendar.set(Calendar.MINUTE, minute)
+
+        return calendar.timeInMillis >= alarmCalendar.timeInMillis
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == TIME_TABLE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.data != null){
+            val inputStream: InputStream? =
+                    contentResolver.openInputStream(data.data!!)
+            val realPath = RealPath()
+            val uri = data.data
+            resultPath = realPath.getRealPath(this, uri!!)!!
+
+            val myBit: Bitmap = BitmapFactory.decodeStream(inputStream)
+            convertTimeTable(myBit)
+
+            if(alarmArray != null){
+                val timeStringArray = arrayToTimeStringArray()
+                val dbStringArray = arrayToDbStringArray()
+                database.deletePath()
+                database.insertPath(resultPath)
+                setDialog(timeStringArray, dbStringArray, false)
+            } else {
+                val emptyArray: Array<String> = arrayOf()
+                setDialog(emptyArray, emptyArray,true)
+            }
+        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val realPath = RealPath()
+            val uri = data.data ?: return
+            val musicPath = realPath.getRealPath(this, uri)
+            if (musicPath == null) {
+                Toast.makeText(this, "wrong Path", Toast.LENGTH_SHORT).show()
+            } else {
+                val preference = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+                val editor = preference.edit()
+                editor.putString("musicPath", musicPath)
+                editor.apply()
+            }
+        }
+    }
+
+    private fun showVersionDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("플랫폼 버전 주의!")
+            .setMessage("Android 8.0이하 버전에서는 일부기능이 작동하지 않을 수 있습니다.")
+            .setNeutralButton("일단 써볼게요!"){ _,_->}
+            .show()
     }
 
     override fun onPause(){

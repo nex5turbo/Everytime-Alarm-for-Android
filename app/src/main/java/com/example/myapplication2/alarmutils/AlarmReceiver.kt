@@ -33,9 +33,9 @@ class AlarmReceiver : BroadcastReceiver() {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-//        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
-//            deliverNotification(context)
-//        } else {
+        if (!km.isKeyguardLocked || pm.isInteractive) { //잠금 안걸린 상태거나 화면 켜진 상태
+            deliverNotification(context)
+        } else {
             val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
             alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             alarmIntent.action = Intent.ACTION_MAIN
@@ -45,7 +45,7 @@ class AlarmReceiver : BroadcastReceiver() {
             pIntent.send()
 
             deliverNotification(context, alarmIntent)
-//        }
+        }
     }
 
     private fun createNextAlarm(context: Context){
