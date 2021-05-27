@@ -13,7 +13,7 @@ import android.util.Log
 import androidx.loader.content.CursorLoader
 
 class RealPath() {
-
+    fun getJustName(path: String): String = path.split("/").last()
     fun getRealPath(context: Context, fileUri: Uri): String? {
         val realPath: String?
         // SDK < API11

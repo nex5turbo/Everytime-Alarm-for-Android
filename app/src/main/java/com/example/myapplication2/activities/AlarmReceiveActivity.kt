@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.example.myapplication2.R
 import com.example.myapplication2.utils.NetworkStatus
 import com.google.android.gms.ads.AdRequest
@@ -86,7 +87,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
     }
 
     private fun initRingtone() {
-        val preference = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val preference = PreferenceManager.getDefaultSharedPreferences(this)
         val musicPath = preference.getString("musicPath", "")
         val mediaURI = if (musicPath == "") {
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_preTime_labels">
+        <item>10분</item>
+        <item>30분</item>
+        <item>1시간</item>
+        <item>1시간 30분</item>
+        <item>2시간</item>
+        <item>2시간 30분</item>
+        <item>3시간</item>
+    </array>
+    <array name="pref_preTime_values">
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+    </array>
+</resources>

@@ -3,6 +3,7 @@ package com.example.myapplication2.activities
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
@@ -19,10 +20,11 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.preference.PreferenceManager
 import com.example.myapplication2.OpenCvModule
 import com.example.myapplication2.R
 import com.example.myapplication2.alarmutils.AlarmFunction
-import com.example.myapplication2.alarmutils.AlarmReceiver
+import com.example.myapplication2.receiver.AlarmReceiver
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
 import com.example.myapplication2.utils.NetworkStatus
@@ -32,11 +34,11 @@ import com.example.myapplication2.utils.TimeData
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.common.util.SharedPreferencesUtils
 import com.suke.widget.SwitchButton
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 import java.io.InputStream
-import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -176,7 +178,7 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun initTitleAnimation() {
-        val animator = AlphaAnimation(0.3f, 1.0f)
+        val animator = AlphaAnimation(1.0f, 0.4f)
         val titleTextView = findViewById<TextView>(R.id.titleTextView)
 
         animator.duration = 5000
@@ -203,16 +205,20 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun initPreferences() {
-        val preferences = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isFirst = preferences.getBoolean("isFirst", true)
+        val checkbox = preferences.getBoolean("checkbox", false)
+        Log.d("###", "checkbox = $checkbox")
         if (isFirst) {
             createNotificationChannel()
             val editor = preferences.edit()
             editor.putBoolean("isFirst", false)
-            editor.putInt("preTime", 90)
+            editor.putInt("preTime", 30)
             editor.putString("musicPath", "")
             editor.apply()
         }
+        val musicPath = preferences.getString("musicPath", "")
+        Log.d("###", "musicPath = $musicPath")
         requestPermissions()
         setPreTime()
     }
@@ -220,7 +226,7 @@ class TempMainActivity : AppCompatActivity() {
     private fun initTest() {
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
-            AlarmFunction.setTest(this)
+            AlarmFunction.setTest(this, 180)
         }
     }
 
@@ -243,7 +249,8 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun initListener() {
         settingButton.setOnClickListener {
-            openAudioGallery()
+//            openAudioGallery()
+            openSettings()
         }
         timeTableButton.setOnClickListener {
             openGallery()
@@ -284,66 +291,64 @@ class TempMainActivity : AppCompatActivity() {
         val todayDayOfWeek = getDayOfWeek(TODAY)
         var text = ""
         val infoText: SpannableString
-        if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
-            text = "내일은 주말이에요! \n 편히 쉬세요!"
-            infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
-        } else {
-            if (isOverTodayAlarm(todayDayOfWeek)) { //내일의 정보를 알려줘야함
-                if (getTime(tomorrowDayOfWeek) == "no") {
-                    text = "내일은 공강이에요! \n 편히 쉬세요!"
-                    infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
-                } else if (!isArray[tomorrowDayOfWeek-2]) {
-                    infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
-                } else {
-                    val tomorrowTime = getTime(tomorrowDayOfWeek).split(",")
-                    val hour = tomorrowTime[0]
-                    val minute = tomorrowTime[1]
-                    val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
-                    val tomorrowClassTime = formatTimeString(hour, minute)
-                    text = "내일(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
-                            "${tomorrowAlarmTime}에 깨워드릴게요!"
-                    var spannableString = SpannableString(text)
-                    val dayStart = text.indexOf("(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]})")
-                    val dayEnd = dayStart+3
-                    val classStart = text.indexOf(tomorrowClassTime)
-                    val classEnd = classStart+tomorrowClassTime.length
-                    val alarmStart = text.indexOf(tomorrowAlarmTime)
-                    val alarmEnd = alarmStart+tomorrowAlarmTime.length
-                    spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
-                    spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
-                    infoText = spannableString
-                }
-            } else { //오늘의 정보를 알려줘야함
-                if (getTime(todayDayOfWeek) == "no") {
-                    text = "내일은 공강이에요! \n 편히 쉬세요!"
-                    infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
-                } else if (!isArray[todayDayOfWeek-2]) {
-                    infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
-                } else {
-                    val tomorrowTime = getTime(todayDayOfWeek).split(",")
-                    val hour = tomorrowTime[0]
-                    val minute = tomorrowTime[1]
-                    val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
-                    val tomorrowClassTime = formatTimeString(hour, minute)
-                    text = "내일(${TimeData.dayStringArray[todayDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
-                            "${tomorrowAlarmTime}에 깨워드릴게요!"
-                    var spannableString = SpannableString(text)
-                    val dayStart = text.indexOf("(${TimeData.dayStringArray[todayDayOfWeek-2][0]})")
-                    val dayEnd = dayStart+3
-                    val classStart = text.indexOf(tomorrowClassTime)
-                    val classEnd = classStart+tomorrowClassTime.length
-                    val alarmStart = text.indexOf(tomorrowAlarmTime)
-                    val alarmEnd = alarmStart+tomorrowAlarmTime.length
-                    spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
-                    spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
-                    spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
-                    infoText = spannableString
-                }
+        if (isOverTodayAlarm(todayDayOfWeek)) { //내일의 정보를 알려줘야함
+            if (tomorrowDayOfWeek == 1 || tomorrowDayOfWeek == 7) {
+                text = "내일은 주말이에요! \n 편히 쉬세요!"
+                infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+            } else if (getTime(tomorrowDayOfWeek) == "no") {
+                text = "내일은 공강이에요! \n 편히 쉬세요!"
+                infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+            } else if (!isArray[tomorrowDayOfWeek-2]) {
+                infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
+            } else {
+                val tomorrowTime = getTime(tomorrowDayOfWeek).split(",")
+                val hour = tomorrowTime[0]
+                val minute = tomorrowTime[1]
+                val tomorrowAlarmTime = formatTimeString(hour, minute, this.preTime)
+                val tomorrowClassTime = formatTimeString(hour, minute)
+                text = "내일(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]}) 첫 수업은 ${tomorrowClassTime}에요.\n"+
+                        "${tomorrowAlarmTime}에 깨워드릴게요!"
+                var spannableString = SpannableString(text)
+                val dayStart = text.indexOf("(${TimeData.dayStringArray[tomorrowDayOfWeek-2][0]})")
+                val dayEnd = dayStart+3
+                val classStart = text.indexOf(tomorrowClassTime)
+                val classEnd = classStart+tomorrowClassTime.length
+                val alarmStart = text.indexOf(tomorrowAlarmTime)
+                val alarmEnd = alarmStart+tomorrowAlarmTime.length
+                spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
+                spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
+                infoText = spannableString
+            }
+        } else { //오늘의 정보를 알려줘야함
+            if (getTime(todayDayOfWeek) == "no") {
+                text = "내일은 공강이에요! \n 편히 쉬세요!"
+                infoText = SpannableText.convertToSpannable(text, 4, 6, Color.RED, true, 20)
+            } else if (!isArray[todayDayOfWeek-2]) {
+                infoText = SpannableString("알람이 꺼져있어요! \n 편히 쉬세요!")
+            } else {
+                val todayTime = getTime(todayDayOfWeek).split(",")
+                val hour = todayTime[0]
+                val minute = todayTime[1]
+                val todayAlarmTime = formatTimeString(hour, minute, this.preTime)
+                val todayClassTime = formatTimeString(hour, minute)
+                text = "내일(${TimeData.dayStringArray[todayDayOfWeek-2][0]}) 첫 수업은 ${todayClassTime}에요.\n"+
+                        "${todayAlarmTime}에 깨워드릴게요!"
+                var spannableString = SpannableString(text)
+                val dayStart = text.indexOf("(${TimeData.dayStringArray[todayDayOfWeek-2][0]})")
+                val dayEnd = dayStart+3
+                val classStart = text.indexOf(todayClassTime)
+                val classEnd = classStart+todayClassTime.length
+                val alarmStart = text.indexOf(todayAlarmTime)
+                val alarmEnd = alarmStart+todayAlarmTime.length
+                spannableString = SpannableText.setSpans(spannableString, dayStart, dayEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setSpans(spannableString, classStart, classEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setSpans(spannableString, alarmStart, alarmEnd, Color.BLACK, true, 20)
+                spannableString = SpannableText.setClockSpans(spannableString, classStart, classEnd, this)
+                spannableString = SpannableText.setClockSpans(spannableString, alarmStart, alarmEnd, this)
+                infoText = spannableString
             }
         }
         infoTextView.text = infoText
@@ -574,7 +579,7 @@ class TempMainActivity : AppCompatActivity() {
     }
 
     private fun setPreTime() {
-        val preferences = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         this.preTime = preferences.getInt("preTime", 30)
     }
 
@@ -621,19 +626,28 @@ class TempMainActivity : AppCompatActivity() {
         startActivityForResult(intent, SETTING_REQUEST_CODE)
     }
 
+    private fun openSettings() {
+        val intent = Intent(this, SettingActivity::class.java)
+        startActivityForResult(intent, SETTING_REQUEST_CODE)
+    }
+
     private fun isOverTodayAlarm(day: Int): Boolean {
+        if (day == 1 || day == 7) {
+            return true
+        }
         val time = getTime(day)
         val timeSplit = time.split(",")
         val hour = timeSplit[0].toInt()
-        val minute = timeSplit[1].toInt()
+        val minute = timeSplit[1].toInt() - this.preTime
+        Log.d("###", "preTime = ${this.preTime}")
 
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        val nowTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
 
-        val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-        alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
-        alarmCalendar.set(Calendar.MINUTE, minute)
-
-        return calendar.timeInMillis >= alarmCalendar.timeInMillis
+        val alarmTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        alarmTime.set(Calendar.HOUR_OF_DAY, hour)
+        alarmTime.set(Calendar.MINUTE, minute)
+        Log.d("###", "${(nowTime.timeInMillis >= alarmTime.timeInMillis)}")
+        return nowTime.timeInMillis >= alarmTime.timeInMillis
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -658,18 +672,12 @@ class TempMainActivity : AppCompatActivity() {
                 val emptyArray: Array<String> = arrayOf()
                 setDialog(emptyArray, emptyArray,true)
             }
-        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            val realPath = RealPath()
-            val uri = data.data ?: return
-            val musicPath = realPath.getRealPath(this, uri)
-            if (musicPath == null) {
-                Toast.makeText(this, "wrong Path", Toast.LENGTH_SHORT).show()
-            } else {
-                val preference = getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
-                val editor = preference.edit()
-                editor.putString("musicPath", musicPath)
-                editor.apply()
-            }
+        } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            initWidgets()
+            initPreferences()
+            initAlarmUI()
+            initListener()
+            Toast.makeText(this, "설정이 적용됐습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 

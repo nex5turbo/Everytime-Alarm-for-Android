@@ -7,8 +7,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication2"
         android:usesCleartextTraffic="true">
+        <activity android:name=".activities.SettingActivity"/>
         <activity android:name=".activities.TempMainActivity" />
 
         <meta-data
@@ -25,8 +27,15 @@
             android:value="ca-app-pub-3940256099942544~3347511713" />
 
         <receiver
-            android:name=".alarmutils.AlarmReceiver"
+            android:name=".receiver.AlarmReceiver"
             android:exported="false" />
+        <receiver android:name=".receiver.RebootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".activities.SplashActivity"
@@ -40,7 +49,7 @@
         </activity>
         <activity
             android:name=".activities.AlarmReceiveActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
 
         <meta-data
             android:name="preloaded_fonts"

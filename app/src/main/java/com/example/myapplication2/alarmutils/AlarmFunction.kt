@@ -1,16 +1,20 @@
 package com.example.myapplication2.alarmutils
 
+import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.preference.PreferenceManager
+import com.example.myapplication2.receiver.AlarmReceiver
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 object AlarmFunction {
+    private const val TEST_CODE = 101
     fun splitArr(array:IntArray):ArrayList<ArrayList<Int>>{
         val rt = ArrayList<ArrayList<Int>>()
         val monday = ArrayList<Int>()
@@ -236,31 +240,56 @@ object AlarmFunction {
         return true
     }
 
-    fun setTest(mContext: Context): Boolean{
+    fun setTest(mContext: Context, second: Int): Boolean{
         Log.d("###", "set test alarm")
-        val TESTCODE = 101
+
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(mContext, AlarmReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(mContext, TESTCODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            intent.putExtra("isTest", true)
 
-            val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
             val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-            alarmCalendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) + 10)
-            val formatter1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val formattedc = formatter1.format(calendar.timeInMillis)
-            val formatteda = formatter1.format(alarmCalendar.timeInMillis)
-            Log.d("###", "now = $formattedc")
-            Log.d("###", "alarm = $formatteda")
+            alarmCalendar.set(Calendar.SECOND, alarmCalendar.get(Calendar.SECOND) + second)
+            val pendingIntent = PendingIntent.getBroadcast(mContext, TEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
             alarmManager.setExact(   // 5
                     AlarmManager.RTC_WAKEUP,
                     alarmCalendar.timeInMillis,
                     pendingIntent)
 
-            val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val formatted = formatter.format(alarmCalendar.timeInMillis)
-            Log.d("###", "$formatted")
+            val preferences = PreferenceManager.getDefaultSharedPreferences(mContext)
+
+            val editor = preferences.edit()
+            editor.putBoolean("isTestOn", true)
+            editor.putLong("testTime", alarmCalendar.timeInMillis)
+            editor.apply()
+        } catch (e:Exception) {
+            Log.d("###", e.toString())
+            return false
+        }
+        return true
+    }
+
+    fun setTest(mContext: Context, testTime: Long): Boolean{
+        Log.d("###", "set test alarm")
+
+        try {
+            val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(mContext, AlarmReceiver::class.java)
+            intent.putExtra("isTest", true)
+
+            val pendingIntent = PendingIntent.getBroadcast(mContext, TEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+            alarmManager.setExact(   // 5
+                    AlarmManager.RTC_WAKEUP,
+                    testTime,
+                    pendingIntent)
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(mContext)
+            val editor = preferences.edit()
+            editor.putBoolean("isTestOn", true)
+            editor.putLong("testTime", testTime)
+            editor.apply()
         } catch (e:Exception) {
             Log.d("###", e.toString())
             return false
@@ -280,16 +309,16 @@ object AlarmFunction {
         return true
     }
 
-    fun setAlarms(dayArray: Array<String>, mContext: Context, preTime: Int): Boolean{
+    fun setAlarms(timeArray: Array<String>, mContext: Context, preTime: Int): Boolean{
         Log.d("###", "set alarms")
         try {
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             for (i in 0..4) {
-                if (dayArray[i] == "no") {
+                if (timeArray[i] == "no") {
                     continue
                 }
 
-                val dayTime = dayArray[i].split(",")
+                val dayTime = timeArray[i].split(",")
                 val hour = dayTime[0].toInt()
                 val minute = dayTime[1].toInt() - preTime
 

@@ -1,26 +1,22 @@
-package com.example.myapplication2.alarmutils
+package com.example.myapplication2.receiver
 
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.wifi.WifiManager
-import android.os.Build
 import android.os.PowerManager
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import com.example.myapplication2.R
 import com.example.myapplication2.activities.AlarmReceiveActivity
+import com.example.myapplication2.alarmutils.AlarmFunction
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
-import java.lang.Exception
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
     companion object {
-        const val TAG = "AlarmReceiver"
         const val NOTIFICATION_ID = 101
         const val PRIMARY_CHANNEL_ID = "primary_notification_channel"
     }
@@ -30,12 +26,24 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val isScreenOn = pm.isInteractive
-        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         Log.d("###", "${km.isKeyguardLocked}, ${km.isKeyguardSecure}, $isScreenOn")
         val isLocked = if (km.isKeyguardSecure) {km.isKeyguardLocked} else {true}
         val wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "my:app")
-        wakeLock.acquire()
+        wakeLock.acquire(10000L)
+        val isTest = intent.getBooleanExtra("itTest", false)
+
+        if (!isTest) {
+            createNextAlarm(context)
+        } else {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = preferences.edit()
+            editor.putBoolean("isTestOn", false)
+            editor.putLong("testTime", 0L)
+            editor.apply()
+        }
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         if (!isLocked || isScreenOn) { //잠금 안걸린 상태거나 화면 켜진 상태
             deliverNotification(context)
         } else {
@@ -47,8 +55,8 @@ class AlarmReceiver : BroadcastReceiver() {
             pIntent.send()
 
             deliverNotification(context, alarmIntent)
-            wakeLock.release()
         }
+        wakeLock.release()
     }
 
     private fun createNextAlarm(context: Context){
@@ -59,7 +67,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val day = getDay()
         val time = db.getTime(day)
 
-        val preferences = context.getSharedPreferences("isFirst", Activity.MODE_PRIVATE)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val preTime = preferences.getInt("preTime", 30)
 
         AlarmFunction.setAlarm(day, time, context, preTime)
