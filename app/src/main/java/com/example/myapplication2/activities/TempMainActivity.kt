@@ -580,7 +580,7 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun setPreTime() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        this.preTime = preferences.getInt("preTime", 30)
+        this.preTime = preferences.getInt("preTime", -1)
     }
 
     private fun requestPermissions() {
@@ -636,6 +636,7 @@ class TempMainActivity : AppCompatActivity() {
             return true
         }
         val time = getTime(day)
+        if (time == "no") return true
         val timeSplit = time.split(",")
         val hour = timeSplit[0].toInt()
         val minute = timeSplit[1].toInt() - this.preTime

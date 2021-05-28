@@ -2,11 +2,11 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="test">
-        <CheckBoxPreference
-            android:key="checkbox"
-            android:summary="hello"
-            android:title="checkbox pref"/>
+        android:title="설정">
+        <EditTextPreference
+            android:title="알람예약시간"
+            android:summary="수업시간에서 예약시간만큼 전에 알람이 울립니다."
+            android:key="preTimeText"/>
 
         <Preference
             android:title="알람음 선택"
