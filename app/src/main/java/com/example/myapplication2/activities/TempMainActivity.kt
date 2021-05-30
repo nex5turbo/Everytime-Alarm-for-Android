@@ -226,7 +226,7 @@ class TempMainActivity : AppCompatActivity() {
     private fun initTest() {
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
-            AlarmFunction.setTest(this, 180)
+            AlarmFunction.setTest(this, 20)
         }
     }
 
