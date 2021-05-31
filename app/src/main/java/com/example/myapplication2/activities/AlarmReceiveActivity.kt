@@ -81,7 +81,8 @@ class AlarmReceiveActivity : AppCompatActivity() {
             if (alarmPlayer!!.isPlaying) {
                 alarmPlayer!!.stop()
                 vibrator.cancel()
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val notificationManager =
+                        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.cancelAll()
                 finish()
             }

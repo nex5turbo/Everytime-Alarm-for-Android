@@ -426,7 +426,8 @@ class TempMainActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .show()
         } else {
-            val dialog = AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog)
+            val dialog = AlertDialog
+                    .Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog)
 
             val monTime = timeStringArray[0]
             val tueTime = timeStringArray[1]

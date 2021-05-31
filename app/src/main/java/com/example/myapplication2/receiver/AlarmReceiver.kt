@@ -66,6 +66,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val day = getDay()
         if (day == 1 || day == 7) return
+        val isOn = database.getIs(day)
+        if (!isOn) return
         val time = database.getTime(day)
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
