@@ -45,7 +45,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
         setContentView(R.layout.activity_alarm_receive)
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
+        Log.d("###", "activity")
         initAdvertisement()
         initRingtone()
         initListener()
@@ -98,7 +98,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
         alarmPlayer!!.setDataSource(this, mediaURI)
         alarmPlayer!!.isLooping = true
-        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
+        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
         alarmPlayer!!.prepare()
     }
 

@@ -226,7 +226,7 @@ class TempMainActivity : AppCompatActivity() {
     private fun initTest() {
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
-            AlarmFunction.setTest(this, 20)
+            AlarmFunction.setTest(this, 10)
         }
     }
 
@@ -492,7 +492,7 @@ class TempMainActivity : AppCompatActivity() {
                     val hour = timeArray[classTime][0].toString()
                     val minute = if(timeArray[classTime][1].toString().length == 1) {
                         "0${timeArray[classTime][1]}"
-                    } else{"${timeArray[classTime][0]}"}
+                    } else{"${timeArray[classTime][1]}"}
                     timeStringArray[i] = formatTimeString(hour, minute)
                 }
             }
@@ -515,7 +515,7 @@ class TempMainActivity : AppCompatActivity() {
                     val hour = timeArray[classTime][0].toString()
                     val minute = if(timeArray[classTime][1].toString().length == 1) {
                         "0${timeArray[classTime][1]}"
-                    } else{"${timeArray[classTime][0]}"}
+                    } else{"${timeArray[classTime][1]}"}
                     timeStringArray[i] =  formatDbString(hour, minute)
                 }
             }
@@ -580,7 +580,7 @@ class TempMainActivity : AppCompatActivity() {
 
     private fun setPreTime() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        this.preTime = preferences.getInt("preTime", -1)
+        this.preTime = preferences.getInt("preTime", 30)
     }
 
     private fun requestPermissions() {
@@ -618,12 +618,6 @@ class TempMainActivity : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
         startActivityForResult(intent, TIME_TABLE_REQUEST_CODE)
-    }
-
-    private fun openAudioGallery() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "audio/*")
-        startActivityForResult(intent, SETTING_REQUEST_CODE)
     }
 
     private fun openSettings() {
@@ -674,10 +668,21 @@ class TempMainActivity : AppCompatActivity() {
                 setDialog(emptyArray, emptyArray,true)
             }
         } else if (requestCode == SETTING_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            initWidgets()
             initPreferences()
+
+            val isArray = database.getAllIs()
+            val timeArray = database.getAllTime()
+
+            for (i in 0..4) {
+                if (!isArray[i]) {
+                    timeArray[i] = "no"
+                }
+            }
+            AlarmFunction.setAlarms(timeArray, this, this.preTime)
+
             initAlarmUI()
             initListener()
+            initWidgets()
             Toast.makeText(this, "설정이 적용됐습니다.", Toast.LENGTH_SHORT).show()
         }
     }

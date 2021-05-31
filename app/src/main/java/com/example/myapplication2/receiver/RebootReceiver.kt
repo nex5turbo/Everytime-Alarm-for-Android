@@ -26,9 +26,14 @@ class RebootReceiver : BroadcastReceiver(){
                 }
             }
             val timeArray = database.getAllTime()
+            val isArray = database.getAllIs()
             if (timeArray.isNotEmpty()) {
                 val preTime = preferences.getInt("preTime", 30)
-
+                for (i in 0..4) {
+                    if (!isArray[i]) {
+                        timeArray[i] = "no"
+                    }
+                }
                 val isSuccess = AlarmFunction.setAlarms(timeArray, context, preTime)
                 if (!isSuccess) {
                     Toast.makeText(context, "나즈 알람 설정에 에러가 있습니다. 앱 실행 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show()

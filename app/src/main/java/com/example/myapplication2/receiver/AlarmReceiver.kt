@@ -61,12 +61,12 @@ class AlarmReceiver : BroadcastReceiver() {
 
     private fun createNextAlarm(context: Context){
         val dbHelper = DBHelper(context, "mydb.db", null, 1)
-        val database = dbHelper.writableDatabase
-        val db = DBFunction(database)
+        val db = dbHelper.readableDatabase
+        val database = DBFunction(db)
 
         val day = getDay()
         if (day == 1 || day == 7) return
-        val time = db.getTime(day)
+        val time = database.getTime(day)
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val preTime = preferences.getInt("preTime", 30)
@@ -95,7 +95,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         .setContentTitle("학교 갈 시간이에요!")
                         .setContentText("서둘러서 준비해요!")
                         .setContentIntent(pIntent)
-                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(false)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
