@@ -81,7 +81,7 @@ Preferences를 사용해 알람음, 수업시작 얼마전에 알람이 울릴�
 처음에는 단순히 스토어에 등록할 앱을 간단하게 만들어보기만 하려고 시작했는데,    
 잘 알고 있다고 생각했던 네이티브의 특성들이 너무 어렵게 다가왔다.    
     
-안드로이드 4대 컴포넌트 Broadcast Receiver, Activity, Intent, Service...    
+안드로이드 4대 컴포넌트 Broadcast Receiver, Activity, ContentProvider, Service...    
 아직도 공부할 게 너무나도 많다.. 그래도 이 프로젝트로 최소한 Broadcast Receiver는    
 굉장히 많은 것을 알게되었다. 앞으로 receiver가 필요한 앱을 제작할 때 정말 많은 도움이 될 것 같다.    
     
