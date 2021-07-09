@@ -33,7 +33,7 @@ object SpannableText {
     }
 
     fun setClockSpans(spannableString: SpannableString, start: Int, end: Int, context: Context): SpannableString {
-        val myType = Typeface.create(ResourcesCompat.getFont(context, R.font.day), Typeface.NORMAL)
+        val myType = Typeface.create(ResourcesCompat.getFont(context, R.font.gsansmedium), Typeface.NORMAL)
         spannableString.setSpan(TypefaceSpan(myType), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         return spannableString
     }

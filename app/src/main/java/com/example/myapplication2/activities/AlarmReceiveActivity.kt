@@ -11,9 +11,11 @@ import android.os.*
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.example.myapplication2.R
+import com.example.myapplication2.utils.AlarmWakeLock
 import com.example.myapplication2.utils.NetworkStatus
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -23,13 +25,13 @@ class AlarmReceiveActivity : AppCompatActivity() {
     private lateinit var adView: AdView
     private lateinit var adRequest: AdRequest
 
-    private lateinit var stopButton: Button
+    private lateinit var stopButton: ImageView
     private var alarmPlayer: MediaPlayer? = MediaPlayer()
     private lateinit var vibrator:Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        AlarmWakeLock().acquireCpuWakeLock(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             setTurnScreenOn(true)
@@ -42,6 +44,10 @@ class AlarmReceiveActivity : AppCompatActivity() {
                     or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
         }
+//        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+//                or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+//                or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+//                or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
         setContentView(R.layout.activity_alarm_receive)
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -99,7 +105,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
         alarmPlayer!!.setDataSource(this, mediaURI)
         alarmPlayer!!.isLooping = true
-        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
         alarmPlayer!!.prepare()
     }
 
@@ -117,6 +123,7 @@ class AlarmReceiveActivity : AppCompatActivity() {
         if (alarmPlayer != null && alarmPlayer!!.isPlaying) {
             alarmPlayer!!.stop()
         }
+        AlarmWakeLock().releaseCpuLock()
         super.onDestroy()
     }
 }

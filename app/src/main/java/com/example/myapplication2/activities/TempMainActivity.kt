@@ -3,7 +3,6 @@ package com.example.myapplication2.activities
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
@@ -31,19 +30,26 @@ import com.example.myapplication2.utils.NetworkStatus
 import com.example.myapplication2.utils.RealPath
 import com.example.myapplication2.utils.SpannableText
 import com.example.myapplication2.utils.TimeData
+import com.example.myapplication2.weatherapi.WeatherApi
+import com.example.myapplication2.weatherapi.WeatherClient
+import com.example.myapplication2.weatherapi.WeatherData
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.common.util.SharedPreferencesUtils
 import com.suke.widget.SwitchButton
 import org.opencv.android.Utils
 import org.opencv.core.Mat
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.InputStream
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 class TempMainActivity : AppCompatActivity() {
     companion object {
+        const val TAG = "TempMainActivity"
 //        const val DAY_SETTING_REQUEST_CODE = 300
         const val TIME_TABLE_REQUEST_CODE = 200
         const val SETTING_REQUEST_CODE = 100
@@ -98,6 +104,7 @@ class TempMainActivity : AppCompatActivity() {
     private lateinit var fridayContainer: ConstraintLayout
     private lateinit var containerArray: Array<ConstraintLayout>
 
+    private lateinit var testButton2: Button
     private lateinit var testButton: Button
 
     private lateinit var dbHelper: DBHelper
@@ -114,7 +121,6 @@ class TempMainActivity : AppCompatActivity() {
         timeTableButton = findViewById(R.id.timetableButton)
 
         weatherTextView = findViewById(R.id.weatherTextView)
-        weatherImageView = findViewById(R.id.weatherImageView)
 
         infoTextView = findViewById(R.id.infoTextView)
 
@@ -174,7 +180,64 @@ class TempMainActivity : AppCompatActivity() {
         initListener()
         initDatabase()
         initAlarmUI()
+        initWeather()
         initTest()
+    }
+
+    private fun initWeather() {
+        val f= SimpleDateFormat("yyyy-MM-dd HH")
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val nowDate = f.format(Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).timeInMillis)
+        val storedDate = preferences.getString("weatherDate", "")!!
+        Log.d(TAG, nowDate)
+        Log.d(TAG, storedDate)
+        var nowCelsius = 0
+        var minCelsius = 0
+        var maxCelsius = 0
+        var location = ""
+
+        if (nowDate != storedDate) {
+            val retrofit = WeatherClient.getInstance()
+            val weatherService = retrofit.create(WeatherApi::class.java)
+            val call = weatherService.getWeather()
+            call.enqueue(object: Callback<WeatherData>{
+                override fun onResponse(call: Call<WeatherData>, response: Response<WeatherData>) {
+                    val responseBody = response.body()!!.body
+                    Log.d(TAG, responseBody.toString())
+                    location = responseBody.data.location.city
+                    nowCelsius = responseBody.data.weather.celcius
+                    maxCelsius = responseBody.data.weather.maxCelcius
+                    minCelsius = responseBody.data.weather.minCelcius
+                    Log.d(TAG, "$location $nowCelsius $maxCelsius $minCelsius")
+                    setWeatherPreference(nowCelsius, maxCelsius, minCelsius, location, nowDate)
+                    weatherTextView.text = "현재 "+location + "의 온도 " + nowCelsius + "도,\n최고 온도 " + maxCelsius + "도, 최저 온도 " + minCelsius +"도 입니다."
+                }
+
+                override fun onFailure(call: Call<WeatherData>, t: Throwable) {
+                    location="error"
+                }
+
+            })
+        } else {
+            nowCelsius = preferences.getInt("nowCelsius", 0)
+            maxCelsius = preferences.getInt("maxCelsius", 0)
+            minCelsius = preferences.getInt("minCelsius", 0)
+            location = preferences.getString("location", "Seoul")!!
+            weatherTextView.text = "현재 "+location + "의 온도 " + nowCelsius + "도,\n최고 온도 " + maxCelsius + "도, 최저 온도 " + minCelsius +"도 입니다."
+        }
+
+    }
+
+    private fun setWeatherPreference(n: Int, a: Int, i: Int, l: String, d: String) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val editor = preferences.edit()
+        editor.putInt("nowCelsius", n)
+        editor.putInt("maxCelsius", a)
+        editor.putInt("minCelsius", i)
+        editor.putString("location", l)
+        editor.putString("weatherDate", d)
+        editor.apply()
+
     }
 
     private fun initTitleAnimation() {
@@ -215,6 +278,11 @@ class TempMainActivity : AppCompatActivity() {
             editor.putBoolean("isFirst", false)
             editor.putInt("preTime", 30)
             editor.putString("musicPath", "")
+            editor.putString("weatherDate", "")
+            editor.putInt("minCelsius", 0)
+            editor.putInt("maxCelsius", 0)
+            editor.putInt("nowCelsius", 0)
+            editor.putString("location", "")
             editor.apply()
         }
         val musicPath = preferences.getString("musicPath", "")
@@ -227,6 +295,11 @@ class TempMainActivity : AppCompatActivity() {
         testButton = findViewById(R.id.testButton)
         testButton.setOnClickListener {
             AlarmFunction.setTest(this, 10)
+        }
+        testButton2 =findViewById(R.id.testButton2)
+        val testArray = arrayOf("9,00","9,00","9,00","9,00","9,00")
+        testButton2.setOnClickListener {
+            AlarmFunction.setAlarms(testArray, this, 0)
         }
     }
 
@@ -445,6 +518,7 @@ class TempMainActivity : AppCompatActivity() {
                 .setTitle("시간표 분석 완료!")
                 .setNegativeButton("설정하기") { _, _ ->
                     Toast.makeText(this, "알람이 설정되었습니다!", Toast.LENGTH_SHORT).show()
+                    Log.d("array", dbMon+" "+dbTue+" "+dbWed+" "+dbThu+" "+dbFri)
                     AlarmFunction.setAlarms(dbStringArray, this, this.preTime).toString() //성공여부에 따라 다이얼로그 띄우기
                     dbInsert(dbStringArray)
                     val isArray = arrayOf(dbMon != "no", dbTue != "no", dbWed != "no", dbThu != "no", dbFri != "no")

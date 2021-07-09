@@ -13,6 +13,7 @@ import com.example.myapplication2.activities.AlarmReceiveActivity
 import com.example.myapplication2.alarmutils.AlarmFunction
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
+import com.example.myapplication2.utils.AlarmWakeLock
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -29,8 +30,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         Log.d("###", "${km.isKeyguardLocked}, ${km.isKeyguardSecure}, $isScreenOn")
         val isLocked = if (km.isKeyguardSecure) {km.isKeyguardLocked} else {true}
-        val wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE, "my:app")
-        wakeLock.acquire(10000L)
+        AlarmWakeLock().acquireCpuWakeLock(context)
         val isTest = intent.getBooleanExtra("itTest", false)
 
         if (!isTest) {
@@ -45,6 +45,7 @@ class AlarmReceiver : BroadcastReceiver() {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (!isLocked || isScreenOn) { //잠금 안걸린 상태거나 화면 켜진 상태
+            AlarmWakeLock().releaseCpuLock()
             deliverNotification(context)
         } else {
             val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
@@ -56,7 +57,6 @@ class AlarmReceiver : BroadcastReceiver() {
 
             deliverNotification(context, alarmIntent)
         }
-        wakeLock.release()
     }
 
     private fun createNextAlarm(context: Context){

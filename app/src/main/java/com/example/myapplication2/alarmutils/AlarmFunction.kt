@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+const val TAG="AlarmFunction"
+
 object AlarmFunction {
     private const val TEST_CODE = 101
     fun splitArr(array:IntArray):ArrayList<ArrayList<Int>>{
@@ -176,6 +178,7 @@ object AlarmFunction {
         if (day == 1 || day == 7) return false
         Log.d("###", "set 1 alarm")
         try {
+            val f=SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(mContext, AlarmReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(mContext, day, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -186,54 +189,18 @@ object AlarmFunction {
 
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
             val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+            alarmCalendar.set(Calendar.DAY_OF_WEEK, day)
             alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
             alarmCalendar.set(Calendar.MINUTE, minute)
             alarmCalendar.set(Calendar.SECOND, 0)
-            val nowDay = calendar.get(Calendar.DAY_OF_WEEK)
 
-            if (day < nowDay) {
-                calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
-                calendar.set(Calendar.DAY_OF_WEEK, day)
-                calendar.set(Calendar.HOUR_OF_DAY, hour)
-                calendar.set(Calendar.MINUTE, minute)
-                calendar.set(Calendar.SECOND, 0)
-            } else if (day== nowDay) {
-                val nowTime = calendar.timeInMillis
-                val alarmTime = alarmCalendar.timeInMillis
-                if (nowTime >= alarmTime) {
-                    calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
-                    calendar.set(Calendar.DAY_OF_WEEK, day)
-                    calendar.set(Calendar.HOUR_OF_DAY, hour)
-                    calendar.set(Calendar.MINUTE, minute)
-                    calendar.set(Calendar.SECOND, 0)
-                } else {
-                    calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
-                    calendar.set(Calendar.DAY_OF_WEEK, day)
-                    calendar.set(Calendar.HOUR_OF_DAY, hour)
-                    calendar.set(Calendar.MINUTE, minute)
-                    calendar.set(Calendar.SECOND, 0)
-                }
-            } else {
-                calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
-                calendar.set(Calendar.DAY_OF_WEEK, day)
-                calendar.set(Calendar.HOUR_OF_DAY, hour)
-                calendar.set(Calendar.MINUTE, minute)
-                calendar.set(Calendar.SECOND, 0)
+            if (alarmCalendar.timeInMillis <= calendar.timeInMillis) {
+                alarmCalendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, alarmCalendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
             }
-            val aci = AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent)
+            Log.d(TAG, "set time = ${f.format(alarmCalendar.timeInMillis)}")
+            val aci = AlarmManager.AlarmClockInfo(alarmCalendar.timeInMillis, pendingIntent)
             alarmManager.setAlarmClock(aci, pendingIntent)
-//
-//            if (Build.VERSION.SDK_INT >= 23) {
-//                alarmManager.setExactAndAllowWhileIdle(
-//                        AlarmManager.RTC_WAKEUP,
-//                        calendar.timeInMillis,
-//                        pendingIntent)
-//            } else {
-//                alarmManager.setExact(   // 5
-//                        AlarmManager.RTC_WAKEUP,
-//                        calendar.timeInMillis,
-//                        pendingIntent)
-//            }
+
         } catch (e:Exception) {
             return false
         }
@@ -255,17 +222,7 @@ object AlarmFunction {
             val preferences = PreferenceManager.getDefaultSharedPreferences(mContext)
             val aci = AlarmManager.AlarmClockInfo(alarmCalendar.timeInMillis, pendingIntent)
             alarmManager.setAlarmClock(aci, pendingIntent)
-//            if (Build.VERSION.SDK_INT >= 23) {
-//                alarmManager.setExactAndAllowWhileIdle(
-//                        AlarmManager.RTC_WAKEUP,
-//                        alarmCalendar.timeInMillis,
-//                        pendingIntent)
-//            } else {
-//                alarmManager.setExact(   // 5
-//                        AlarmManager.RTC_WAKEUP,
-//                        alarmCalendar.timeInMillis,
-//                        pendingIntent)
-//            }
+
             val editor = preferences.edit()
             editor.putBoolean("isTestOn", true)
             editor.putLong("testTime", alarmCalendar.timeInMillis)
@@ -324,6 +281,7 @@ object AlarmFunction {
                 if (timeArray[i] == "no") {
                     continue
                 }
+                val f=SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
                 val dayTime = timeArray[i].split(",")
                 val hour = dayTime[0].toInt()
@@ -336,53 +294,17 @@ object AlarmFunction {
 
                 val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
                 val alarmCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+                alarmCalendar.set(Calendar.DAY_OF_WEEK, i+2)
                 alarmCalendar.set(Calendar.HOUR_OF_DAY, hour)
                 alarmCalendar.set(Calendar.MINUTE, minute)
                 alarmCalendar.set(Calendar.SECOND, 0)
-                val nowDay = calendar.get(Calendar.DAY_OF_WEEK)
-
-                if (i + 2 < nowDay) {
-                    calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
-                    calendar.set(Calendar.DAY_OF_WEEK, i + 2)
-                    calendar.set(Calendar.HOUR_OF_DAY, hour)
-                    calendar.set(Calendar.MINUTE, minute)
-                    calendar.set(Calendar.SECOND, 0)
-                } else if (i + 2 == nowDay) {
-                    val nowTime = calendar.timeInMillis
-                    val alarmTime = alarmCalendar.timeInMillis
-                    if (nowTime >= alarmTime) {
-                        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
-                        calendar.set(Calendar.DAY_OF_WEEK, i + 2)
-                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                        calendar.set(Calendar.MINUTE, minute)
-                        calendar.set(Calendar.SECOND, 0)
-                    } else {
-                        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
-                        calendar.set(Calendar.DAY_OF_WEEK, i + 2)
-                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                        calendar.set(Calendar.MINUTE, minute)
-                        calendar.set(Calendar.SECOND, 0)
-                    }
-                } else {
-                    calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, calendar.get(Calendar.DAY_OF_WEEK_IN_MONTH))
-                    calendar.set(Calendar.DAY_OF_WEEK, i + 2)
-                    calendar.set(Calendar.HOUR_OF_DAY, hour)
-                    calendar.set(Calendar.MINUTE, minute)
-                    calendar.set(Calendar.SECOND, 0)
+                if (alarmCalendar.timeInMillis <= calendar.timeInMillis) {
+                    alarmCalendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, alarmCalendar.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1)
                 }
-                val aci = AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent)
+                Log.d(TAG, "set time = ${f.format(alarmCalendar.timeInMillis)}")
+                val aci = AlarmManager.AlarmClockInfo(alarmCalendar.timeInMillis, pendingIntent)
                 alarmManager.setAlarmClock(aci, pendingIntent)
-//                if (Build.VERSION.SDK_INT >= 23) {
-//                    alarmManager.setExactAndAllowWhileIdle(
-//                            AlarmManager.RTC_WAKEUP,
-//                            calendar.timeInMillis,
-//                            pendingIntent)
-//                } else {
-//                    alarmManager.setExact(   // 5
-//                            AlarmManager.RTC_WAKEUP,
-//                            calendar.timeInMillis,
-//                            pendingIntent)
-//                }
+
             }
 
         } catch (e: Exception){

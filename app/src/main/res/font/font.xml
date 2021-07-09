@@ -11,4 +11,14 @@
     <font android:fontStyle="normal"
         android:fontWeight="400"
         android:font="@font/title"/>
+    <font android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/gsansbold"/>
+    <font android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/gsanslight"/>
+    <font android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@font/gsansmedium"/>
+
 </font-family>
