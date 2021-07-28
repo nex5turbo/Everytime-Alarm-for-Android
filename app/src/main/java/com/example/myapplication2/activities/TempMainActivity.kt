@@ -297,7 +297,7 @@ class TempMainActivity : AppCompatActivity() {
             AlarmFunction.setTest(this, 10)
         }
         testButton2 =findViewById(R.id.testButton2)
-        val testArray = arrayOf("9,00","9,00","9,00","9,00","9,00")
+        val testArray = arrayOf("7,00","7,00","7,00","7,00","7,00")
         testButton2.setOnClickListener {
             AlarmFunction.setAlarms(testArray, this, 0)
         }

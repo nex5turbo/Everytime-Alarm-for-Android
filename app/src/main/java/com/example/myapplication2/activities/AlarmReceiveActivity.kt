@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.media.*
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.example.myapplication2.R
+import com.example.myapplication2.alarmutils.AlarmKlaxon
 import com.example.myapplication2.utils.AlarmWakeLock
 import com.example.myapplication2.utils.NetworkStatus
 import com.google.android.gms.ads.AdRequest
@@ -26,12 +28,10 @@ class AlarmReceiveActivity : AppCompatActivity() {
     private lateinit var adRequest: AdRequest
 
     private lateinit var stopButton: ImageView
-    private var alarmPlayer: MediaPlayer? = MediaPlayer()
-    private lateinit var vibrator:Vibrator
+    private var isPlaying = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AlarmWakeLock().acquireCpuWakeLock(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             setTurnScreenOn(true)
@@ -51,11 +51,9 @@ class AlarmReceiveActivity : AppCompatActivity() {
         setContentView(R.layout.activity_alarm_receive)
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        Log.d("###", "activity")
+
         initAdvertisement()
-        initRingtone()
         initListener()
-        startRingtone()
     }
 
     private fun initAdvertisement() {
@@ -68,62 +66,21 @@ class AlarmReceiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun initVibrator() {
-        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val pattern = longArrayOf(100,200,300,400,300,200)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val amplitude = intArrayOf(20,20,20,20,20,20)
-            val waveform = VibrationEffect.createWaveform(pattern, amplitude, 0)
-            vibrator.vibrate(waveform)
-        } else {
-            vibrator.vibrate(pattern, 0)
-        }
-    }
-
     private fun initListener() {
         stopButton.setOnClickListener {
-            if (alarmPlayer == null) return@setOnClickListener
-            if (alarmPlayer!!.isPlaying) {
-                alarmPlayer!!.stop()
-                vibrator.cancel()
-                val notificationManager =
-                        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.cancelAll()
-                finish()
-            }
+            isPlaying = false
+            val stopAlarm = Intent(this, AlarmKlaxon::class.java)
+            stopAlarm.action = "alarm_alert"
+            stopService(stopAlarm)
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancelAll()
+            finish()
         }
-    }
-
-    private fun initRingtone() {
-        val preference = PreferenceManager.getDefaultSharedPreferences(this)
-        val musicPath = preference.getString("musicPath", "")
-        val mediaURI = if (musicPath == "") {
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        } else {
-            Uri.parse(musicPath)
-        }
-        alarmPlayer!!.setDataSource(this, mediaURI)
-        alarmPlayer!!.isLooping = true
-        alarmPlayer!!.setAudioStreamType(AudioManager.STREAM_ALARM)
-        alarmPlayer!!.prepare()
-    }
-
-    private fun startRingtone() {
-        alarmPlayer!!.start()
-        initVibrator()
     }
 
     override fun onBackPressed() {
-        if (alarmPlayer!!.isPlaying) return
+        if (isPlaying) return
         super.onBackPressed()
-    }
-
-    override fun onDestroy() {
-        if (alarmPlayer != null && alarmPlayer!!.isPlaying) {
-            alarmPlayer!!.stop()
-        }
-        AlarmWakeLock().releaseCpuLock()
-        super.onDestroy()
     }
 }

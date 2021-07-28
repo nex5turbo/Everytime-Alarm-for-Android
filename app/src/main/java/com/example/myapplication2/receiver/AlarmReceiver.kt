@@ -11,6 +11,7 @@ import androidx.preference.PreferenceManager
 import com.example.myapplication2.R
 import com.example.myapplication2.activities.AlarmReceiveActivity
 import com.example.myapplication2.alarmutils.AlarmFunction
+import com.example.myapplication2.alarmutils.AlarmKlaxon
 import com.example.myapplication2.dbutils.DBFunction
 import com.example.myapplication2.dbutils.DBHelper
 import com.example.myapplication2.utils.AlarmWakeLock
@@ -30,7 +31,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         Log.d("###", "${km.isKeyguardLocked}, ${km.isKeyguardSecure}, $isScreenOn")
         val isLocked = if (km.isKeyguardSecure) {km.isKeyguardLocked} else {true}
-        AlarmWakeLock().acquireCpuWakeLock(context)
         val isTest = intent.getBooleanExtra("itTest", false)
 
         if (!isTest) {
@@ -45,13 +45,17 @@ class AlarmReceiver : BroadcastReceiver() {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (!isLocked || isScreenOn) { //잠금 안걸린 상태거나 화면 켜진 상태
-            AlarmWakeLock().releaseCpuLock()
             deliverNotification(context)
         } else {
+            val playAlarm = Intent(context, AlarmKlaxon::class.java)
+            playAlarm.action = "alarm_alert"
+            context.startService(playAlarm)
+
             val alarmIntent = Intent(context, AlarmReceiveActivity::class.java)
             alarmIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             alarmIntent.action = Intent.ACTION_MAIN
             alarmIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+
             val pIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
             pIntent.send()
 
@@ -83,9 +87,8 @@ class AlarmReceiver : BroadcastReceiver() {
                         .setContentTitle("학교 갈 시간이에요!")
                         .setContentText("서둘러서 준비해요!")
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setVibrate(longArrayOf(200,100,200))
                         .setAutoCancel(false)
-                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setOngoing(true)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
@@ -99,6 +102,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         .setContentIntent(pIntent)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(false)
+                        .setOngoing(true)
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
     private fun getDay(): Int = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul")).get(Calendar.DAY_OF_WEEK)

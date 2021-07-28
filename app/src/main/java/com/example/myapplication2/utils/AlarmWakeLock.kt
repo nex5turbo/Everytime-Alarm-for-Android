@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.PowerManager
 import android.util.Log
 
-class AlarmWakeLock {
+object AlarmWakeLock {
     private var sCpuWakeLock: PowerManager.WakeLock? = null
     fun acquireCpuWakeLock(context: Context) {
         if (sCpuWakeLock != null) {
@@ -12,7 +12,7 @@ class AlarmWakeLock {
         }
         val pm: PowerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         sCpuWakeLock = pm.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK or
+            PowerManager.FULL_WAKE_LOCK or
                     PowerManager.ACQUIRE_CAUSES_WAKEUP or
                     PowerManager.ON_AFTER_RELEASE, "my:app"
         )
