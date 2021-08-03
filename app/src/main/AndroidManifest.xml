@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myapplication2">
+    package="com.won.naz">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -14,22 +14,22 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Project Naz"
+        android:label="나즈 알람"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication2"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.SettingActivity"/>
-        <activity android:name=".activities.TempMainActivity" />
+        <activity android:name="com.won.naz.activities.SettingActivity"/>
+        <activity android:name="com.won.naz.activities.TempMainActivity" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
 
         <receiver
-            android:name=".receiver.AlarmReceiver"
+            android:name="com.won.naz.receiver.AlarmReceiver"
             android:exported="false" />
-        <receiver android:name=".receiver.RebootReceiver">
+        <receiver android:name="com.won.naz.receiver.RebootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
@@ -38,7 +38,7 @@
         </receiver>
 
         <activity
-            android:name=".activities.SplashActivity"
+            android:name="com.won.naz.activities.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,13 +48,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.AlarmReceiveActivity"
-            android:launchMode="singleTask" />
+            android:name="com.won.naz.activities.AlarmReceiveActivity"
+            android:launchMode="singleTask"
+            android:exported="true"/>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <service android:name=".alarmutils.AlarmKlaxon">
+        <service android:name="com.won.naz.alarmutils.AlarmKlaxon">
             <intent-filter>
                 <action android:name="alarm_alert"/>
             </intent-filter>

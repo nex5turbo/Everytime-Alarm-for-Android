@@ -5,7 +5,7 @@
     <data>
         <variable
             name="main"
-            type="com.example.myapplication2.activities.MainActivity" />
+            type="com.won.naz.activities.MainActivity" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
